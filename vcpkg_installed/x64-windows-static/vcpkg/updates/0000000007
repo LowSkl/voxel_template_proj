@@ -1,0 +1,9 @@
+Package: opengl-registry
+Version: 2024-02-10
+Port-Version: 1
+Depends: egl-registry
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 72e8757d2a30ec419175f5585c1736e46a2a5f0524d8b34f91de3559a30c5838
+Description: OpenGL, OpenGL ES, and OpenGL ES-SC API and Extension Registry
+Status: install ok installed

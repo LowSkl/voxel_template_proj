@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    "glfw3",
+    "glew",
+    "spdlog",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding"
+      ]
+    }
+  ]
+}
