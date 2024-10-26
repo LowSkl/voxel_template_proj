@@ -6,7 +6,8 @@
     {
       "name": "imgui",
       "features": [
-        "glfw-binding"
+        "glfw-binding",
+        "opengl3-binding"
       ]
     },
     "spdlog",

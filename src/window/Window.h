@@ -1,15 +1,18 @@
 #pragma once
 
 struct GLFWwindow;
+struct ImGuiIO;
+
 class Window {
 	static GLFWwindow* m_pWindow;
 
 	static unsigned int m_width;
 	static unsigned int m_height;
+
 public:
 	static int initialize(unsigned int width, unsigned int height, const char* title);
 	static void finalize();
-	static void update();
+	static void update(void (*between)());
 
 	static GLFWwindow* get_window() { return Window::m_pWindow; }
 

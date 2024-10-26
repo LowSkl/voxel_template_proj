@@ -1,9 +1,8 @@
-Package: glad
-Version: 0.1.36
-Depends: egl-registry, opengl-registry, vcpkg-cmake, vcpkg-cmake-config
+Package: imgui
+Version: 1.90.7
+Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: ad9590e48f63244044b145a7b573da48a0b2a6f146a3a21e845b1e92e0768b6a
-Description: Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.
-Default-Features: loader
-Status: install ok half-installed
+Abi: ef1307ed1f70695f342fb5ec5a30a2eecad43dec40a3d50153495009fa277113
+Description: Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies.
+Status: purge ok half-installed
