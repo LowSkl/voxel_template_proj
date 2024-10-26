@@ -2,74 +2,54 @@
 
 #include <utils/Log.h>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-Window::Window(int width, int height, std::string title) :
-	m_data
-	({
-		width,
-		height,
-		title
-	})
-{
-	LINFO("Init window, code {0}", this->w_initialize());
+GLFWwindow* Window::m_pWindow = nullptr;
+unsigned int Window::m_width = 0;
+unsigned int Window::m_height = 0;
+
+int Window::initialize(unsigned int width, unsigned int height, const char* title) {
+    LINFO("Init window {0}x{1}, {2}", width, height, title);
+    if (glfwInit() != GL_TRUE) {
+        LCRITICAL("Can't init glfw");
+        return -1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 16);
+
+    if ((Window::m_pWindow = glfwCreateWindow(width, height, title, nullptr, nullptr)) == nullptr) {
+        fprintf(stderr, "Can't create window\n");
+        glfwTerminate();
+        return -2;
+    } glfwMakeContextCurrent(Window::m_pWindow);
+
+    gladLoadGL();
+    glViewport(0, 0, width, height);
+
+    Window::m_width = width;
+    Window::m_height = height;
+
+    return 0;
 }
 
-int Window::w_initialize() {
-	LINFO("Window::w_initialize()");
-
-	glfwSetErrorCallback([](int code, const char* description) {
-		LCRITICAL("Error {0}", code);
-		LCRITICAL(description);
-	});
-
-	if (!glfwInit()) {
-		LCRITICAL("Can't init glfw");
-		return -1;
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-	this->m_pWindow = glfwCreateWindow(this->m_data.width, this->m_data.height, this->m_data.title.c_str(), nullptr, nullptr);
-	if (this->m_pWindow == nullptr) {
-		LCRITICAL("Can't init window");
-		glfwTerminate();
-		return -2;
-	} glfwMakeContextCurrent(this->m_pWindow);
-	this->e_initialize(this->m_pWindow);
-
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		LCRITICAL("Can't init glew");
-		return -3;
-	}
-
-	glfwGetFramebufferSize(this->m_pWindow, &this->m_data.width, &this->m_data.height);
-	glViewport(0, 0, this->m_data.width, this->m_data.height);
-
-	return 0;
+void Window::update() {
+    glfwSwapBuffers(Window::m_pWindow);
 }
 
-void Window::w_update() {
-	//LINFO("Window::w_update()");
-	glfwSwapBuffers(this->m_pWindow);
-}
-
-Window::~Window() {
-	this->w_finalize();
-}
-
-void Window::w_finalize() {
-	LINFO("Kill window");
-
-	glfwDestroyWindow(this->m_pWindow);
-	glfwTerminate();
+void Window::finalize() {
+    LINFO("Kill window");
+    glfwDestroyWindow(Window::m_pWindow);
+    glfwTerminate();
 }
 
 bool Window::is_shouldClose() {
-	return glfwWindowShouldClose(this->m_pWindow);
+    return glfwWindowShouldClose(Window::m_pWindow);
+}
+
+void Window::set_shouldClose(bool flag) {
+    glfwSetWindowShouldClose(Window::m_pWindow, flag);
 }

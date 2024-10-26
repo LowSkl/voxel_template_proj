@@ -1,13 +1,15 @@
 {
   "dependencies": [
-    "glfw3",
     "glew",
-    "spdlog",
+    "glfw3",
+    "glm",
     {
       "name": "imgui",
       "features": [
         "glfw-binding"
       ]
-    }
+    },
+    "spdlog",
+    "glad"
   ]
 }

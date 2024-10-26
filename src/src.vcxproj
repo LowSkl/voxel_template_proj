@@ -170,17 +170,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="window\Input.cpp" />
     <ClCompile Include="window\Events.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="window\Window.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="window\Input.h" />
     <ClInclude Include="window\Events.h" />
-    <ClInclude Include="utils\Log.h" />
     <ClInclude Include="window\Keys.h" />
     <ClInclude Include="window\Window.h" />
+    <ClInclude Include="utils\Log.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

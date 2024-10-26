@@ -1,22 +1,27 @@
 #pragma once
 
-#include <iostream>
-#include "Input.h"
+#include "Keys.h"
 
-struct GLFWwindow;
-class Events : protected Input {
+class Events {
+    static bool* m_keysPressed;
+    static bool* m_mouseButtonsPressed;
+
+    static int m_mousePosX;
+    static int m_mousePosY;
+
 public:
-	Events();
+    static int initialize();
+    static void update();
 
-	GLFWwindow* get_window() const { return m_pWindow; }
-	void set_window(GLFWwindow* n_pWindow) { m_pWindow = n_pWindow; }
+    static bool is_keyPressed(const KeyCode keyCode);
+    static bool is_mouseButtonPressed(const MouseButton mouseButton);
 
-	void e_update();
+    static int get_mousePosX() { return Events::m_mousePosX; }
+    static int get_mousePosY() { return Events::m_mousePosY; }
 
-protected:
-	int e_initialize(GLFWwindow* pWindow);
+    static void set_mousePosX(int x) { Events::m_mousePosX = x; }
+    static void set_mousePosY(int y) { Events::m_mousePosY = y; }
 
-private:
-	GLFWwindow* m_pWindow;
+    static bool* get_keysPressed() { return Events::m_keysPressed; }
+    static bool* get_mouseButtonsPressed() { return Events::m_mouseButtonsPressed; }
 };
-
