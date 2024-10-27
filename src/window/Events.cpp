@@ -67,6 +67,11 @@ int Events::initialize() {
 			//LINFO("Window resized {0}x{1}", width, height);
 			Window::set_width(width);
 			Window::set_height(height);
+		}
+	);
+
+	glfwSetFramebufferSizeCallback(Window::get_window(), [](GLFWwindow* window, int width, int height) {
+			//LINFO("buffer resized {0}x{1}", width, height);
 			glViewport(0, 0, width, height);
 		}
 	);

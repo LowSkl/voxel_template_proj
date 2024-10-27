@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <utils/Log.h>
+
 #include <window/Window.h>
 #include <window/Events.h>
 
@@ -12,10 +13,12 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <imgui_internal.h>
+
 #include <graphics/Shader.h>
-#include <graphics/VAO.h>
-#include <graphics/EBO.h>
-#include <graphics/VBO.h>
+#include <graphics/buffers/VAO.h>
+#include <graphics/buffers/EBO.h>
+#include <graphics/buffers/VBO.h>
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -44,25 +47,26 @@ int main(int argc, char* argv[]) {
     VBO colors_vbo(colors, sizeof(colors), GL_STATIC_DRAW);
 
     VAO vao;
-    vao.Bind();
-    vao.LinkAttrib(points_vbo, 0, 3, GL_FLOAT, 0, nullptr);
-    vao.LinkAttrib(colors_vbo, 1, 3, GL_FLOAT, 0, nullptr);
+    vao.bind();
+    vao.linkAttrib(points_vbo, 0, 3, GL_FLOAT, 0, nullptr);
+    vao.linkAttrib(colors_vbo, 1, 3, GL_FLOAT, 0, nullptr);
 
     while (!Window::is_shouldClose()) {
         Window::update([&shader, &vao]() {
-            ImGui::Begin("test color");
-            ImGui::ColorEdit4("background", background_color_test);
-            ImGui::NewLine();
-            ImGui::Text("mouse pos: %dx%d", Events::get_mousePosX(), Events::get_mousePosY());
-            ImGui::Text("window size: %dx%d", Window::get_width(), Window::get_height());
-            ImGui::End();
+                ImGui::Begin("test color");
+                ImGui::ColorEdit4("background", background_color_test);
+                ImGui::NewLine();
+                ImGui::Text("mouse pos: %dx%d", Events::get_mousePosX(), Events::get_mousePosY());
+                ImGui::Text("window size: %dx%d", Window::get_width(), Window::get_height());
+                ImGui::End();
 
-            glUseProgram(shader->get_id());
-            glBindVertexArray(vao.get_id());
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+                glUseProgram(shader->get_id());
+                glBindVertexArray(vao.get_id());
+                glDrawArrays(GL_TRIANGLES, 0, 3);
 
-            glClearColor(background_color_test[0], background_color_test[1], background_color_test[2], background_color_test[3]);
-        });
+                glClearColor(background_color_test[0], background_color_test[1], background_color_test[2], background_color_test[3]);
+            }
+        );
     } Window::finalize();
 
     return 0;

@@ -27,13 +27,16 @@
     <ClCompile Include="graphics\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\VAO.cpp">
+    <ClCompile Include="graphics\buffers\VAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\VBO.cpp">
+    <ClCompile Include="graphics\buffers\VBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\EBO.cpp">
+    <ClCompile Include="graphics\buffers\EBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,13 +62,16 @@
     <ClInclude Include="utils\FileUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\VAO.h">
+    <ClInclude Include="graphics\buffers\VAO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\VBO.h">
+    <ClInclude Include="graphics\buffers\VBO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\EBO.h">
+    <ClInclude Include="graphics\buffers\EBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

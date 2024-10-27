@@ -1,8 +1,7 @@
 Package: imgui
-Version: 1.90.7
-Depends: vcpkg-cmake, vcpkg-cmake-config
+Feature: glfw-binding
+Depends: glfw3
 Architecture: x64-windows
 Multi-Arch: same
-Abi: ef1307ed1f70695f342fb5ec5a30a2eecad43dec40a3d50153495009fa277113
-Description: Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies.
-Status: purge ok not-installed
+Description: Make available GLFW binding
+Status: purge ok half-installed
