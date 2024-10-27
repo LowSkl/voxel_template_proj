@@ -12,30 +12,14 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <graphics/Shader.h>
+#include <graphics/VAO.h>
+#include <graphics/EBO.h>
+#include <graphics/VBO.h>
+
 #define WIDTH 800
 #define HEIGHT 800
 
-const char* vertex_shader{
-    "#version 460\n"
-    "layout(location = 0) in vec3 vertex_position;"
-    "layout(location = 1) in vec3 vertex_color;"
-    "out vec3 color;"
-    "void main() {"
-    "   color = vertex_color;"
-    "   gl_Position = vec4(vertex_position, 1.0);"
-    "}"
-};
-
-const char* fragment_shader{
-    "#version 460\n"
-    "in vec3 color;"
-    "out vec4 frag_color;"
-    "void main() {"
-    "   frag_color = vec4(color, 1.0);"
-    "}"
-};
-
-GLuint shaderProgram, VAO;
 int main(int argc, char* argv[]) {
     Window::initialize(WIDTH, HEIGHT, "Window 2.0");
 
@@ -53,61 +37,28 @@ int main(int argc, char* argv[]) {
         0.f, 0.f, 1.f,
     };
 
-    GLuint vertex = glCreateShader(GL_VERTEX_SHADER); {
-        glShaderSource(vertex, 1, &vertex_shader, nullptr);
-        glCompileShader(vertex);
-    }
+    std::unique_ptr<Shader> shader(Shader::load_shader("resources/default.vert", "resources/default.frag"));
+    shader->initialize();
 
-    GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER); {
-        glShaderSource(fragment, 1, &fragment_shader, nullptr);
-        glCompileShader(fragment);
-    }
+    VBO points_vbo(points, sizeof(points), GL_STATIC_DRAW);
+    VBO colors_vbo(colors, sizeof(colors), GL_STATIC_DRAW);
 
-    shaderProgram = glCreateProgram(); {
-        glAttachShader(shaderProgram, vertex);
-        glAttachShader(shaderProgram, fragment);
+    VAO vao;
+    vao.Bind();
+    vao.LinkAttrib(points_vbo, 0, 3, GL_FLOAT, 0, nullptr);
+    vao.LinkAttrib(colors_vbo, 1, 3, GL_FLOAT, 0, nullptr);
 
-        glLinkProgram(shaderProgram);
-
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-    }
-
-    GLuint points_vbo = 0; {
-        glGenBuffers(1, &points_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-    }
-
-    GLuint colors_vbo = 0; {
-        glGenBuffers(1, &colors_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-    }
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    ImGuiIO& io = ImGui::GetIO();
     while (!Window::is_shouldClose()) {
-        Window::update([]() {
-            ImGuiIO& io = ImGui::GetIO();
-            io.DisplaySize = ImVec2(Window::get_width(), Window::get_height());
-
+        Window::update([&shader, &vao]() {
             ImGui::Begin("test color");
             ImGui::ColorEdit4("background", background_color_test);
+            ImGui::NewLine();
+            ImGui::Text("mouse pos: %dx%d", Events::get_mousePosX(), Events::get_mousePosY());
+            ImGui::Text("window size: %dx%d", Window::get_width(), Window::get_height());
             ImGui::End();
 
-            glUseProgram(shaderProgram);
-            glBindVertexArray(VAO);
+            glUseProgram(shader->get_id());
+            glBindVertexArray(vao.get_id());
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glClearColor(background_color_test[0], background_color_test[1], background_color_test[2], background_color_test[3]);

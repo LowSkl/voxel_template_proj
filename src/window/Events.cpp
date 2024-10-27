@@ -20,13 +20,19 @@ bool Events::is_mouseButtonPressed(const MouseButton mouse_button) {
 }
 
 int Events::initialize() {
-	LINFO("Init events");
+	LINFO("Initializing events");
 
 	Events::m_keysPressed         = new bool[static_cast<size_t>(KeyCode::KEY_LAST) + 1];
 	Events::m_mouseButtonsPressed = new bool[static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1];
 
 	memset(Events::m_keysPressed,         false, (static_cast<size_t>(KeyCode::KEY_LAST) + 1) * sizeof(bool));
 	memset(Events::m_mouseButtonsPressed, false, (static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1) * sizeof(bool));
+
+	glfwSetErrorCallback([](int error_code, const char* description) {
+			LERROR("GLFW error was catched, code {0}", error_code);
+			LERROR(description);
+		}
+	);
 
 	glfwSetKeyCallback(Window::get_window(), [](GLFWwindow* window, int key, int scancode, int action, int mode) {
 			if (action == GLFW_PRESS) {
@@ -51,14 +57,14 @@ int Events::initialize() {
 	);
 
 	glfwSetCursorPosCallback(Window::get_window(), [](GLFWwindow* window, double xpos, double ypos) {
-			LINFO("Cursor pos {0}x{1}", xpos, ypos);
+			//LINFO("Cursor pos {0}x{1}", xpos, ypos);
 			Events::set_mousePosX(xpos);
 			Events::set_mousePosY(ypos);
 		}
 	);
 
 	glfwSetWindowSizeCallback(Window::get_window(), [](GLFWwindow* window, int width, int height) {
-			LINFO("Resize {0}x{1}", width, height);
+			//LINFO("Window resized {0}x{1}", width, height);
 			Window::set_width(width);
 			Window::set_height(height);
 			glViewport(0, 0, width, height);

@@ -170,15 +170,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="graphics\EBO.cpp" />
+    <ClCompile Include="graphics\Shader.cpp" />
+    <ClCompile Include="graphics\VAO.cpp" />
+    <ClCompile Include="graphics\VBO.cpp" />
     <ClCompile Include="window\Events.cpp" />
     <ClCompile Include="window\Window.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="graphics\EBO.h" />
+    <ClInclude Include="graphics\Shader.h" />
+    <ClInclude Include="utils\FileUtils.h" />
+    <ClInclude Include="utils\GLcheck.h" />
+    <ClInclude Include="graphics\VAO.h" />
+    <ClInclude Include="graphics\VBO.h" />
     <ClInclude Include="window\Events.h" />
     <ClInclude Include="window\Keys.h" />
     <ClInclude Include="window\Window.h" />
     <ClInclude Include="utils\Log.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\default.frag" />
+    <None Include="resources\default.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

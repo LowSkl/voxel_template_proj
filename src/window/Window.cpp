@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <utils/Log.h>
+#include <utils/GLcheck.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,9 +15,10 @@
 GLFWwindow* Window::m_pWindow = nullptr;
 unsigned int Window::m_width = 0;
 unsigned int Window::m_height = 0;
+ImGuiIO* Window::io = nullptr;
 
 int Window::initialize(unsigned int width, unsigned int height, const char* title) {
-    LINFO("Init window {0}x{1}, {2}", width, height, title);
+    LINFO("Initializing window {0}x{1}, {2}", width, height, title);
     if (glfwInit() != GL_TRUE) {
         LCRITICAL("Can't init glfw");
         return -1;
@@ -41,9 +43,16 @@ int Window::initialize(unsigned int width, unsigned int height, const char* titl
     ImGui::StyleColorsDark();
 
     Events::initialize();
-    ImGui_ImplGlfw_InitForOpenGL(Window::m_pWindow, true);
 
+    ImGui_ImplGlfw_InitForOpenGL(Window::m_pWindow, true);
     ImGui_ImplOpenGL3_Init("#version 460");
+
+    Window::io = &ImGui::GetIO();
+
+    Window::io->IniFilename = nullptr;
+    Window::io->LogFilename = nullptr;
+
+    Window::io->DisplaySize = ImVec2(width, height);
 
     Window::m_width = width;
     Window::m_height = height;
@@ -51,10 +60,9 @@ int Window::initialize(unsigned int width, unsigned int height, const char* titl
     return 0;
 }
 
-void Window::update(void (*between)()) {
+void Window::update(std::function<void()> between) {
     Events::update();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -68,7 +76,7 @@ void Window::update(void (*between)()) {
 }
 
 void Window::finalize() {
-    LINFO("Kill window");
+    LINFO("Killing window");
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

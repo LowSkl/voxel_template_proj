@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 struct GLFWwindow;
 struct ImGuiIO;
 
@@ -9,10 +11,12 @@ class Window {
 	static unsigned int m_width;
 	static unsigned int m_height;
 
+	static ImGuiIO* io;
+
 public:
 	static int initialize(unsigned int width, unsigned int height, const char* title);
 	static void finalize();
-	static void update(void (*between)());
+	static void update(std::function<void()> between);
 
 	static GLFWwindow* get_window() { return Window::m_pWindow; }
 
@@ -24,4 +28,7 @@ public:
 
 	static void set_width(unsigned int width) { Window::m_width = width; }
 	static void set_height(unsigned int height) { Window::m_height = height; }
+
+	static ImGuiIO* get_io() { return Window::io; }
+	static void set_io(ImGuiIO* io) { Window::io = io; }
 };
