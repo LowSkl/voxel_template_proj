@@ -48,7 +48,6 @@ int Window::initialize(unsigned int width, unsigned int height, const char* titl
 
 void Window::update(std::function<void()> between) {
     Events::update();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     UI::update_begin();
     between();
