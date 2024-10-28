@@ -22,10 +22,10 @@ bool Events::is_mouseButtonPressed(const MouseButton mouse_button) {
 int Events::initialize() {
 	LINFO("Initializing events");
 
-	Events::m_keysPressed         = new bool[static_cast<size_t>(KeyCode::KEY_LAST) + 1];
+	Events::m_keysPressed         = new bool[static_cast<size_t>(    KeyCode::KEY_LAST         ) + 1];
 	Events::m_mouseButtonsPressed = new bool[static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1];
 
-	memset(Events::m_keysPressed,         false, (static_cast<size_t>(KeyCode::KEY_LAST) + 1) * sizeof(bool));
+	memset(Events::m_keysPressed,         false, (static_cast<size_t>(    KeyCode::KEY_LAST         ) + 1) * sizeof(bool));
 	memset(Events::m_mouseButtonsPressed, false, (static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1) * sizeof(bool));
 
 	glfwSetErrorCallback([](int error_code, const char* description) {

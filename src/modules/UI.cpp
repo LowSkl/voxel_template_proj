@@ -8,6 +8,7 @@
 
 #include <window/Window.h>
 
+// Запускаем менюшку
 void UI::initialize() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -22,18 +23,21 @@ void UI::initialize() {
     /*Window::get_io()->ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_DockingEnable;
     Window::get_io()->ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_ViewportsEnable;*/
 
+    // Убираем imgui.ini
     Window::get_io()->IniFilename = nullptr;
     Window::get_io()->LogFilename = nullptr;
 
     Window::get_io()->DisplaySize = ImVec2(Window::get_width(), Window::get_height());
 }
 
+// Обновление ПЕРЕД имгуи кодом
 void UI::update_begin() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
+// Обновление ПОСЛЕ имгуи кода
 void UI::update_end() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -47,6 +51,7 @@ void UI::update_end() {
     }*/
 }
 
+// Закрываем менюшку
 void UI::finalize() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

@@ -6,20 +6,27 @@
 #include <glm/glm.hpp>
 
 class Shader {
-	GLuint ID;
+	GLuint m_UUID;
 
 public:
-	Shader(std::string vertexCode, std::string fragmentCode);
+	Shader(const std::string vertexCode, const std::string fragmentCode);
 	virtual ~Shader();
 
-	int initialize();
-	int deinitialize();
+	// Загрузить шейдер
+	void bind();
 
+	// Выгрузить шейдер
+	static void unbind();
+
+	// Удалить шейдер
 	void finalize();
 
-	void uniformMatrix(std::string name, glm::mat4 matrix);
-	static Shader* load_shader(std::string vertexFile, std::string fragmentFile);
+	// Вставить матрицу трансформации
+	void uniformMatrix(const std::string name, const glm::mat4 matrix);
 
-	GLuint get_id() const { return this->ID; }
+	// Загрузить шейдер из файла
+	static Shader* load_shader(const std::string vertexFile, const std::string fragmentFile);
+
+	GLuint get_UUID() const { return this->m_UUID; }
 };
 

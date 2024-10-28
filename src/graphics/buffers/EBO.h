@@ -2,18 +2,27 @@
 
 #include<glad/glad.h>
 
+/* Element Buffer Object
+ * Последовательность отрисовки вершин
+ */
 class EBO {
-	GLuint ID;
+	GLuint m_UUID;
 
 public:
-	EBO(const GLuint* indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
+	EBO(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
 	virtual ~EBO();
 
+	// Загрузить EBO
 	void bind();
-	void unbind();
+
+	// Выгрузить EBO
+	static void unbind();
+
+	// Удалить EBO
 	void finalize();
 
-	void reload(const GLuint* indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
+	// Поменять данные, не меняя объект
+	void reload(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
 
-	GLuint get_id() const { return this->ID; }
+	GLuint get_UUID() const { return this->m_UUID; }
 };

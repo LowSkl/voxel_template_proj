@@ -4,18 +4,27 @@
 
 #include"VBO.h"
 
+/* Vertex Array Object
+ * Упорядоченные вершины
+ */
 class VAO {
-	GLuint ID;
+	GLuint m_UUID;
 
 public:
 	VAO(bool bind = false);
 	virtual ~VAO();
 
-	void linkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
+	// Прилинковать вершины
+	void linkAttrib(VBO& const VBO, const GLuint layout, const GLuint numComponents, const GLenum type, const GLsizeiptr stride, const void* const offset, bool unbind = true);
 
+	// Загрузить VAO
 	void bind();
-	void unbind();
+
+	// Выгрузить VAO
+	static void unbind();
+
+	// Удалить VAO
 	void finalize();
 
-	GLuint get_id() const { return this->ID; }
+	GLuint get_UUID() const { return this->m_UUID; }
 };

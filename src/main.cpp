@@ -60,9 +60,9 @@ int main(int argc, char* argv[]) {
     vbo.unbind();
     ebo.unbind();
 
-    GLuint uniID1 = glGetUniformLocation(shader->get_id(), "scale");
-    GLuint uniID2 = glGetUniformLocation(shader->get_id(), "addVec");
-    GLuint uniID3 = glGetUniformLocation(shader->get_id(), "tex0");
+    GLuint uniID1 = glGetUniformLocation(shader->get_UUID(), "scale");
+    GLuint uniID2 = glGetUniformLocation(shader->get_UUID(), "addVec");
+    GLuint uniID3 = glGetUniformLocation(shader->get_UUID(), "tex0");
 
     float scale = 1.f;
     glm::vec3 addVec{ 0.f, 0.f, 0.f };
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
                 ImGui::SliderFloat("add z", &addVec.z, -10.f, 10.f);
                 ImGui::End();
 
-                shader->initialize();
+                shader->bind();
 
                 glUniform1f(uniID1, scale);
                 glUniform3f(uniID2, addVec.x, addVec.y, addVec.z);

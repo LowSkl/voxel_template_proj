@@ -8,11 +8,12 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-Shader* Shader::load_shader(std::string vertexFile, std::string fragmentFile) {
+// Загрузить шейдер из файла
+Shader* Shader::load_shader(const std::string vertexFile, const std::string fragmentFile) {
 	std::string vertexCode;
 	std::string fragmentCode;
 
-	try {
+	try { // Получаем все, что написано в файлах
 		vertexCode = get_fileContents(vertexFile);
 		fragmentCode = get_fileContents(fragmentFile);
 	} catch (std::ifstream::failure& e) {
@@ -23,7 +24,7 @@ Shader* Shader::load_shader(std::string vertexFile, std::string fragmentFile) {
 	return new Shader(vertexCode, fragmentCode);
 }
 
-Shader::Shader(std::string vertexCode, std::string fragmentCode) {
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : m_UUID(-1) {
 	const GLchar* vShaderCode = vertexCode.c_str();
 	const GLchar* fShaderCode = fragmentCode.c_str();
 
@@ -72,30 +73,35 @@ Shader::Shader(std::string vertexCode, std::string fragmentCode) {
 		return;
 	}
 
-	this->ID = id;
+	this->m_UUID = id;
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }
 
-void Shader::uniformMatrix(std::string name, glm::mat4 matrix) {
-	GLuint transformLoc = glGetUniformLocation(this->ID, name.c_str());
+// Вставить матрицу трансформации
+void Shader::uniformMatrix(const std::string name, const glm::mat4 matrix) {
+	GLuint transformLoc = glGetUniformLocation(this->m_UUID, name.c_str());
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-int Shader::initialize() {
-	glUseProgram(this->ID);
-	return 0;
+// Загрузить шейдер
+void Shader::bind() {
+	glUseProgram(this->m_UUID);
 }
 
-int deinitialize() {
+// Выгрузить шейдер
+void Shader::unbind() {
 	glUseProgram(0);
-	return 0;
 }
 
-
+// Удалить шейдер
 void Shader::finalize() {
-	glDeleteProgram(this->ID);
+	glDeleteProgram(this->m_UUID);
 }
 
-Shader::~Shader() { this->finalize(); }
+// Выгружаем и удаляем шейдер
+Shader::~Shader() { 
+	this->unbind();
+	this->finalize(); 
+}

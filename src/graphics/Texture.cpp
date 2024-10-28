@@ -3,19 +3,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Texture* Texture::load_texture(std::string file, GLenum texType, GLenum slot, GLenum format, GLenum pixelType, bool unbind) {
+// Загрузить текстуру из файла
+Texture* Texture::load_texture(const std::string file, const GLenum texType, const GLenum slot, const GLenum format, const GLenum pixelType, bool unbind) {
     int weight, height, colorCodes;
 
+    // stbi и opengl читают по разному, ставим чтобы читали одинаково
     stbi_set_flip_vertically_on_load(true);
     unsigned char* bytes = stbi_load(file.c_str(), &weight, &height, &colorCodes, 0);
 
     return new Texture(bytes, texType, slot, format, pixelType, weight, height, colorCodes, unbind);
 }
 
-Texture::Texture(unsigned char* bytes, GLenum texType, GLenum slot, GLenum format, GLenum pixelType, int weight, int height, int colorCodes, bool unbind)
-: itextureType(texType), iformat(format), ipixelType(pixelType), iweight(weight), iheight(height), icolorCodes(colorCodes) 
+Texture::Texture(unsigned char* const bytes, const GLenum texType, const GLenum slot, const GLenum format, const GLenum pixelType, const int weight, const int height, const int colorCodes, bool unbind)
+: m_UUID(-1), m_textureType(texType), m_format(format), m_pixelType(pixelType), m_weight(weight), m_height(height), m_colorCodes(colorCodes)
 {
-    glGenTextures(1, &this->ID);
+    glGenTextures(1, &this->m_UUID);
     this->bind();
     if (slot != -1) glActiveTexture(slot);
 
@@ -34,31 +36,40 @@ Texture::Texture(unsigned char* bytes, GLenum texType, GLenum slot, GLenum forma
     if (unbind) this->unbind();
 }
 
+// Загрузить текстуру
 void Texture::bind() {
-    glBindTexture(this->itextureType, this->ID);
+    glBindTexture(this->m_textureType, this->m_UUID);
 }
 
+// Выгрузить текстуру
 void Texture::unbind() {
-    glBindTexture(this->itextureType, 0);
+    glBindTexture(this->m_textureType, 0);
 }
 
+// Удалить текстуру
 void Texture::finalize() {
     this->unbind();
-    glDeleteTextures(1, &this->ID);
+    glDeleteTextures(1, &this->m_UUID);
 }
 
-void Texture::reload(unsigned char* bytes) {
+// Поменять данные, не меняя объект
+void Texture::reload(const unsigned char* const bytes, bool unbind) {
+    // Запихиваем данные
     this->bind();
-    glTexImage2D(this->itextureType, 0, GL_RGBA, this->iweight, this->iheight, 0, this->iformat, this->ipixelType, (GLvoid*)bytes);
-    this->unbind();
+    glTexImage2D(this->m_textureType, 0, GL_RGBA, this->m_weight, this->m_height, 0, this->m_format, this->m_pixelType, (GLvoid*)bytes);
+
+    // Добавил для сокращения кода, чтобы не писать каждый раз texture->bind()
+    if (unbind) this->unbind();
 }
 
-void Texture::textureUnit(Shader* shader, const char* uniform, GLuint unit) {
-    GLuint texUni = glGetUniformLocation(shader->get_id(), uniform);
-    shader->initialize();
+// Загрузить в сэмплеры шейдера текстуру
+void Texture::textureUnit(Shader* const shader, const char* const uniform, const GLuint unit) {
+    GLuint texUni = glGetUniformLocation(shader->get_UUID(), uniform);
+    shader->bind();
     glUniform1i(texUni, unit);
 }
 
+// Выгружаем и удаляем буфер
 Texture::~Texture() {
     this->unbind();
     this->finalize();

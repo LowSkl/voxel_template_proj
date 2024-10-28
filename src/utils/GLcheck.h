@@ -5,7 +5,6 @@
 
 #include <utils/Log.h>
 
-const GLubyte* gluErrorString(GLenum errorCode);
 void PrintOpenGLErrors(char const* const Function, char const* const File, int const Line) {
 	GLenum Error = glGetError();
 	if (Error != GL_NO_ERROR)
