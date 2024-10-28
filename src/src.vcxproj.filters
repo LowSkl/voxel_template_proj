@@ -39,6 +39,9 @@
     <ClCompile Include="modules\UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\Log.h">
@@ -74,9 +77,17 @@
     <ClInclude Include="modules\UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="graphics\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\default.vert" />
-    <None Include="resources\default.frag" />
+    <None Include="resources\shaders\default.vert" />
+    <None Include="resources\shaders\default.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\textures\pop_cat.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

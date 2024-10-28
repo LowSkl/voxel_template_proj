@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include<glad/glad.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 class Shader {
@@ -10,11 +10,11 @@ class Shader {
 
 public:
 	Shader(std::string vertexCode, std::string fragmentCode);
-	Shader(GLuint id);
-
 	virtual ~Shader();
 
 	int initialize();
+	int deinitialize();
+
 	void finalize();
 
 	void uniformMatrix(std::string name, glm::mat4 matrix);

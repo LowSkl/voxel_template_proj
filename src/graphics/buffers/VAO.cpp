@@ -1,10 +1,9 @@
 #include "VAO.h"
 
-VAO::VAO() {
+VAO::VAO(bool bind) {
 	glGenVertexArrays(1, &ID);
+	if (bind) this->bind();
 }
-
-VAO::VAO(GLuint id) : ID(id) {}
 
 void VAO::linkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
 	VBO.bind();

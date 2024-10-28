@@ -175,6 +175,7 @@
     <ClCompile Include="graphics\buffers\VAO.cpp" />
     <ClCompile Include="graphics\buffers\VBO.cpp" />
     <ClCompile Include="modules\UI.cpp" />
+    <ClCompile Include="graphics\Texture.cpp" />
     <ClCompile Include="window\Events.cpp" />
     <ClCompile Include="window\Window.cpp" />
     <ClCompile Include="main.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="graphics\buffers\EBO.h" />
     <ClInclude Include="graphics\Shader.h" />
     <ClInclude Include="modules\UI.h" />
+    <ClInclude Include="graphics\Texture.h" />
     <ClInclude Include="utils\FileUtils.h" />
     <ClInclude Include="utils\GLcheck.h" />
     <ClInclude Include="graphics\buffers\VAO.h" />
@@ -193,8 +195,11 @@
     <ClInclude Include="utils\Log.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\default.frag" />
-    <None Include="resources\default.vert" />
+    <None Include="resources\shaders\default.frag" />
+    <None Include="resources\shaders\default.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\textures\pop_cat.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

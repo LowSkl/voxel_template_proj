@@ -16,6 +16,8 @@
 #include <imgui_internal.h>
 
 #include <graphics/Shader.h>
+#include <graphics/Texture.h>
+
 #include <graphics/buffers/VAO.h>
 #include <graphics/buffers/EBO.h>
 #include <graphics/buffers/VBO.h>
@@ -31,31 +33,28 @@ int main(int argc, char* argv[]) {
     static float background_color_test[4]{0.f, 0.f, 0.f, 0.f};
 
     static const GLfloat verts[]{
-        //               COORDINATES                /     COLORS     //
-        -0.5f,  -0.5f * (float)sqrt(3) / 3,     1.f,  0.8f, 0.3f,  0.02f, // Lower left corner
-        0.5f,   -0.5f * (float)sqrt(3) / 3,     1.f,  0.8f, 0.3f,  0.02f, // Lower right corner
-        0.f,     0.5f * (float)sqrt(3) * 2 / 3, 0.f,  1.f,  0.6f,  0.32f, // Upper corner
-        -0.25f,  0.5f * (float)sqrt(3) / 6,     0.5f, 0.9f, 0.45f, 0.17f, // Inner left
-        0.25f,   0.5f * (float)sqrt(3) / 6,     0.5f, 0.9f, 0.45f, 0.17f, // Inner right
-        0.f,    -0.5f * (float)sqrt(3) / 3,     1.f,  0.8f, 0.3f,  0.02f, // Inner down
+        //     COORDINATES     /        COLORS      /   TexCoord  //
+           -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner
+           -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner
+            0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+            0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
     };
 
     static const GLuint indices[]{
-        0, 3, 5,
-        3, 2, 4,
-        5, 4, 1
+        0, 2, 1, // Upper triangle
+        0, 3, 2 // Lower triangle
     };
 
-    std::unique_ptr<Shader> shader(Shader::load_shader("resources/default.vert", "resources/default.frag"));
+    std::unique_ptr<Shader> shader(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
+    std::unique_ptr<Texture> texture(Texture::load_texture("resources/textures/pop_cat.png", GL_TEXTURE_2D, -1, GL_RGBA, GL_UNSIGNED_BYTE));
 
-    VAO vao;
-    vao.bind();
+    VAO vao(true);
+    VBO vbo(verts, sizeof(verts), GL_STATIC_DRAW, false);
+    EBO ebo(indices, sizeof(indices), GL_STATIC_DRAW, false);
 
-    VBO vbo(verts, sizeof(verts), GL_STATIC_DRAW);
-    EBO ebo(indices, sizeof(indices), GL_STATIC_DRAW);
-
-    vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-    vao.linkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+    vao.linkAttrib(vbo, 1, 3, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    vao.linkAttrib(vbo, 2, 2, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 
     vao.unbind();
     vbo.unbind();
@@ -63,14 +62,13 @@ int main(int argc, char* argv[]) {
 
     GLuint uniID1 = glGetUniformLocation(shader->get_id(), "scale");
     GLuint uniID2 = glGetUniformLocation(shader->get_id(), "addVec");
+    GLuint uniID3 = glGetUniformLocation(shader->get_id(), "tex0");
 
     float scale = 1.f;
     glm::vec3 addVec{ 0.f, 0.f, 0.f };
 
     while (!Window::is_shouldClose()) {
         Window::update([&]() {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
                 ImGui::Begin("test color");
                 ImGui::ColorEdit4("background", background_color_test);
                 ImGui::NewLine();
@@ -87,10 +85,12 @@ int main(int argc, char* argv[]) {
 
                 glUniform1f(uniID1, scale);
                 glUniform3f(uniID2, addVec.x, addVec.y, addVec.z);
+                glUniform1i(uniID3, 0);
 
+                texture->bind();
                 vao.bind();
 
-                glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 glClearColor(background_color_test[0], background_color_test[1], background_color_test[2], background_color_test[3]);
             }
         );

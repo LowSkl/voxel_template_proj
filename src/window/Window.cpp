@@ -36,6 +36,9 @@ int Window::initialize(unsigned int width, unsigned int height, const char* titl
     gladLoadGL();
     glViewport(0, 0, width, height);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Events::initialize();
 
     Window::m_width = width;
@@ -47,6 +50,7 @@ int Window::initialize(unsigned int width, unsigned int height, const char* titl
 }
 
 void Window::update(std::function<void()> between) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Events::update();
 
     UI::update_begin();

@@ -1,12 +1,12 @@
 #include "VBO.h"
 
-VBO::VBO(const GLfloat* vertices, const GLsizeiptr size, const GLenum usage) {
+VBO::VBO(const GLfloat* vertices, const GLsizeiptr size, const GLenum usage, bool unbind) {
 	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	this->bind();
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
-}
 
-VBO::VBO(const GLuint id) : ID(id) {}
+	if (unbind) this->unbind();
+}
 
 void VBO::bind() {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
@@ -18,6 +18,13 @@ void VBO::unbind() {
 
 void VBO::finalize() {
 	glDeleteBuffers(1, &ID);
+}
+
+void VBO::reload(const GLfloat* vertices, const GLsizeiptr size, const GLenum usage, bool unbind) {
+	this->bind();
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
+
+	if (unbind) this->unbind();
 }
 
 VBO::~VBO() { 
