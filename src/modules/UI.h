@@ -4,7 +4,7 @@
 #include <string>
 
 struct ImGuiContext;
-class Window;
+struct Window;
 
 class UI
 {

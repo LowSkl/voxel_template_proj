@@ -2,7 +2,7 @@
 
 #include "Keys.h"
 
-class Window;
+struct Window;
 
 class Input
 {

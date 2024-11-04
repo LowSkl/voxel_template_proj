@@ -2,7 +2,7 @@
 
 #include "SneakyThings.h"
 
-class Shader;
+struct Shader;
 
 class Texture {
 	unsigned int m_UUID, m_width, m_height, m_colorCodes, m_slot;
