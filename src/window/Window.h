@@ -1,34 +1,96 @@
 #pragma once
 
+#include <iostream>
+#include <string>
 #include <functional>
 
+#include "Input.h"
+#include <modules/UI.h>
+
 struct GLFWwindow;
-struct ImGuiIO;
 
-class Window {
-	static GLFWwindow* m_pWindow;
+class Window
+{
+	static unsigned short m_windowsCount;
 
-	static unsigned int m_width;
-	static unsigned int m_height;
+	GLFWwindow* m_pWindow       = nullptr;
 
-	static ImGuiIO* io;
+	bool m_cursorLocked   = false;
+	bool m_is_shouldClose = false;
+
+	std::string            m_title = nullptr;
+	std::shared_ptr<Input> m_input = nullptr;
+	std::shared_ptr<UI>    m_ui = nullptr;
+
+	unsigned short m_width  = 0;
+	unsigned short m_height = 0;
+	unsigned short m_count  = 0;
+
+	int initialize();
+	void finalize();
 
 public:
-	static int initialize(unsigned int width, unsigned int height, const char* title);
-	static void finalize();
-	static void update(std::function<void()> between);
+	enum Returns
+	{
+		NO_ERRORS        =  0,
+		CANT_INIT_GLFW   = -1,
+		CANT_INIT_GLAD   = -2,
+		CANT_INIT_WINDOW = -3,
+	};
 
-	static GLFWwindow* get_window() { return Window::m_pWindow; }
+	static constexpr std::string returnsToString(int code)
+	{
+		switch (code)
+		{
+		case Window::Returns::NO_ERRORS:
+			return "NO_ERRORS";
+			break;
+		case Window::Returns::CANT_INIT_GLFW:
+			return "CANT_INIT_GLFW";
+			break;
+		case Window::Returns::CANT_INIT_GLAD:
+			return "CANT_INIT_GLAD";
+			break;
+		case Window::Returns::CANT_INIT_WINDOW:
+			return "CANT_INIT_WINDOW";
+			break;
+		} return "UNKNOWN_TYPE";
+	}
 
-	static bool is_shouldClose();
-	static void set_shouldClose(bool flag);
+	Window(const std::string title, const unsigned short width, const unsigned short height);
+	~Window();
 
-	static unsigned int get_width() { return Window::m_width; }
-	static unsigned int get_height() { return Window::m_height; }
+	Window(const Window& ) = delete;
+	Window(      Window&&) = delete;
 
-	static void set_width(unsigned int width) { Window::m_width = width; }
-	static void set_height(unsigned int height) { Window::m_height = height; }
+	Window& operator=(const Window& ) = delete;
+	Window& operator=(      Window&&) = delete;
 
-	static ImGuiIO* get_io() { return Window::io; }
-	static void set_io(ImGuiIO* io) { Window::io = io; }
+	void update() const;
+
+	bool is_shouldClose() const { return this->m_is_shouldClose; };
+	void set_shouldClose(bool flag) { this->m_is_shouldClose = flag; };
+
+	void set_cursorMode(int flag)   const;
+
+	void make_contextActive();
+
+	       GLFWwindow* const get_window() const { return  this->m_pWindow; }
+	const std::string* const get_title()  const { return &this->m_title; }
+
+	Input* const get_input()  const { return this->m_input.get(); }
+	UI*    const get_ui()     const { return this->m_ui.get();    }
+
+	unsigned short get_width()  const { return this->m_width;  }
+	unsigned short get_height() const { return this->m_height; }
+	unsigned short get_count()  const { return this->m_count;  }
+
+	void set_width(unsigned short width);
+	void set_height(unsigned short height);
+	void set_size(unsigned short width, unsigned short height);
+
+	bool is_cursorLocked() const { return this->m_cursorLocked; }
+	void toggleCursor();
+
+	static unsigned short get_windowsCount() { return Window::m_windowsCount; }
 };

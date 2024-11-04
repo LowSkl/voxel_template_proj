@@ -1,6 +1,7 @@
 #pragma once
 
-enum class KeyCode {
+enum class KeyCode 
+{
     KEY_UNKNOWN = -1,
 
     /* Printable keys */
@@ -130,7 +131,8 @@ enum class KeyCode {
     KEY_LAST = KEY_MENU
 };
 
-enum class MouseButton {
+enum class MouseButton 
+{
     MOUSE_BUTTON_1 = 0,
     MOUSE_BUTTON_2 = 1,
     MOUSE_BUTTON_3 = 2,

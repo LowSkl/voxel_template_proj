@@ -1,39 +1,43 @@
 #pragma once
 
-#include <string>
+#include "SneakyThings.h"
 
-#include <glad/glad.h>
-#include "Shader.h"
+class Shader;
 
 class Texture {
-	GLuint m_UUID, m_weight, m_height, m_colorCodes;
-	GLenum m_textureType, m_format, m_pixelType;
+	unsigned int m_UUID, m_width, m_height, m_colorCodes, m_slot;
 
-public:
-	Texture(unsigned char* const bytes, const GLenum texType, const GLenum slot, const GLenum format, const GLenum pixelType, const int weight, const int height, const int colorCodes, bool unbind = true);
-	virtual ~Texture();
+	TextureType   m_textureType;
+	TextureFormat m_format;
+	PixelType     m_pixelType;
 
-	// Загрузить текстуру
-	void bind();
-
-	// Выгрузить текстуру
-	void unbind();
-
-	// Удалить текстуру
 	void finalize();
 
-	// Поменять данные, не меняя объект
-	void reload(const unsigned char* const bytes, bool unbind = true);
+public:
+	static Texture* load_texture(const std::string file, const TextureType texType, const unsigned int slot, const TextureFormat format, const PixelType pixelType);
 
-	// Загрузить в сэмплеры шейдера текстуру
-	void textureUnit(Shader* const shader, const char* const uniform, const GLuint unit);
+	Texture(unsigned char* const bytes,
+		   const TextureType texType, 
+		   const unsigned int slot, 
+		   const TextureFormat format, 
+		   const PixelType pixelType, 
+		   const unsigned int width,
+		   const unsigned int height, 
+		   const unsigned int colorCodes);
 
-	// Загрузить текстуру из файла
-	static Texture* load_texture(const std::string file, const GLenum texType, const GLenum slot, const GLenum format, const GLenum pixelType, bool unbind = true);
+	~Texture();
 
-	GLuint get_UUID()       const { return this->m_UUID;       }
-	GLuint get_weight()     const { return this->m_weight;     }
-	GLuint get_height()     const { return this->m_height;     }
-	GLuint get_colorCodes() const { return this->m_colorCodes; }
+	Texture(const Texture&) = delete;
+	Texture& operator=(const Texture&) = delete;
+	Texture& operator=(Texture&& texture) noexcept;
+	Texture(Texture&& texture) noexcept;
+
+	void bind();
+	void unbind();
+	void reload(const unsigned char* const bytes);
+
+	unsigned int get_UUID()       const { return this->m_UUID;       }
+	unsigned int get_width()      const { return this->m_width;      }
+	unsigned int get_height()     const { return this->m_height;     }
+	unsigned int get_colorCodes() const { return this->m_colorCodes; }
 };
-

@@ -1,77 +1,120 @@
 #include "Window.h"
 
-#include <utils/Log.h>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <window/Events.h>
-#include <modules/UI.h>
+#include <utils/Log.h>
 
-GLFWwindow* Window::m_pWindow = nullptr;
+unsigned short Window::m_windowsCount = 0;
 
-unsigned int Window::m_width = 0;
-unsigned int Window::m_height = 0;
+Window::Window(const std::string title, const unsigned short width, const unsigned short height) :
+	m_title(title), m_width(width), m_height(height), m_count(++Window::m_windowsCount)
+{
+	LINFO("[Window {}]\tWindow::Window(\"{}\", {}, {})", this->m_count, this->m_title, this->m_width, this->m_height);
 
-ImGuiIO* Window::io = nullptr;
-
-int Window::initialize(unsigned int width, unsigned int height, const char* title) {
-    LINFO("Initializing window {0}x{1}, {2}", width, height, title);
-    if (glfwInit() != GL_TRUE) {
-        LCRITICAL("Can't init glfw");
-        return -1;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 16);
-
-    if ((Window::m_pWindow = glfwCreateWindow(width, height, title, nullptr, nullptr)) == nullptr) {
-        fprintf(stderr, "Can't create window\n");
-        glfwTerminate();
-        return -2;
-    } glfwMakeContextCurrent(Window::m_pWindow);
-
-    gladLoadGL();
-    glViewport(0, 0, width, height);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    Events::initialize();
-
-    Window::m_width = width;
-    Window::m_height = height;
-
-    UI::initialize();
-
-    return 0;
+	int code = this->initialize();
+	LINFO("[Window {}]\tinit code {} ({})", this->m_count, code, Window::returnsToString(code));
 }
 
-void Window::update(std::function<void()> between) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Events::update();
+int Window::initialize()
+{
+	LINFO("[Window {}]\tWindow::initialize()", this->m_count);
 
-    UI::update_begin();
-    between();
-    UI::update_end();
+	if (Window::m_windowsCount == 1)
+	{
+		LINFO("First window, initializing GLFW");
 
-    glfwSwapBuffers(Window::m_pWindow);
+		glfwSetErrorCallback(
+			[](int error_code, const char* description) {
+				LCRITICAL("GLFW error {}: {}", error_code, description);
+			}
+		);
+
+		if (!glfwInit()) {
+			LCRITICAL("[Window {}]\tCan't init GLFW", this->m_count);
+			return Window::Returns::CANT_INIT_GLFW;
+		}
+	}
+
+	if (Window::m_windowsCount > 1) glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
+
+	//glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // убирает кнопки сверху
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 16);
+
+	if ((this->m_pWindow = glfwCreateWindow(this->m_width, this->m_height, this->m_title.c_str(), nullptr, nullptr)) == nullptr) {
+		LCRITICAL("[Window {}]\tCan't init window", this->m_count);
+		return Window::Returns::CANT_INIT_WINDOW;
+	} this->make_contextActive();
+
+	glfwSetWindowUserPointer(this->m_pWindow, this);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		LCRITICAL("[Window {}]\tCan't init GLAD", this->m_count);
+		return Window::Returns::CANT_INIT_GLAD;
+	}
+
+	this->m_ui    = std::make_shared<UI   >(this);
+	this->m_input = std::make_shared<Input>(this);
+
+	return Window::Returns::NO_ERRORS;
 }
 
-void Window::finalize() {
-    LINFO("Killing window");
-    UI::finalize();
-
-    glfwDestroyWindow(Window::m_pWindow);
-    glfwTerminate();
+void Window::update() const
+{
+	glfwSwapBuffers(this->m_pWindow);
 }
 
-bool Window::is_shouldClose() {
-    return glfwWindowShouldClose(Window::m_pWindow);
+void Window::set_cursorMode(int flag) const { glfwSetInputMode(this->m_pWindow, GLFW_CURSOR, flag); }
+
+void Window::make_contextActive()
+{ 
+	glfwMakeContextCurrent(this->m_pWindow);
 }
 
-void Window::set_shouldClose(bool flag) {
-    glfwSetWindowShouldClose(Window::m_pWindow, flag);
+void Window::set_width(unsigned short width)
+{ 
+	this->m_width = width;
+	glfwSetWindowSize(this->m_pWindow, width, this->m_height);
+}
+
+void Window::set_height(unsigned short height)
+{ 
+	this->m_height = height;
+	glfwSetWindowSize(this->m_pWindow, this->m_width, height);
+}
+
+void Window::set_size(unsigned short width, unsigned short height)
+{
+	this->m_width = width;
+	this->m_height = height;
+	glfwSetWindowSize(this->m_pWindow, width, height);
+}
+
+void Window::toggleCursor()
+{
+	this->m_cursorLocked = !this->m_cursorLocked;
+	this->set_cursorMode(this->m_cursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
+void Window::finalize()
+{
+	glfwDestroyWindow(this->m_pWindow);
+
+	this->m_input = nullptr;
+	this->m_ui = nullptr;
+
+	if (Window::m_windowsCount-- == 1) {
+		LINFO("Last window, terminating GLFW");
+		glfwTerminate();
+		return;
+	} LINFO("[Window {}]\tDestroyed", this->m_count);
+}
+
+Window::~Window()
+{
+	LINFO("[Window {}]\tWindow::~Window()", this->m_count);
+	this->finalize();
 }

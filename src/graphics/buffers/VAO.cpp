@@ -1,40 +1,62 @@
 #include "VAO.h"
 
-// Создать объект с уникальным ID
-VAO::VAO(bool bind) : m_UUID(-1) {
-	glGenVertexArrays(1, &this->m_UUID);
+#include <glad/glad.h>
 
-	// Добавил для сокращения кода, чтобы не писать каждый раз vao->bind()
-	if (bind) this->bind();
+VAO::VAO() { glGenVertexArrays(1, &this->m_UUID); }
+
+VAO::VAO(VAO&& vao) noexcept
+    : m_UUID(vao.m_UUID)
+    , m_elementsCount(vao.m_elementsCount)
+{
+    vao.m_UUID = 0;
+    vao.m_elementsCount = 0;
 }
 
-// Прилинковать вершины
-void VAO::linkAttrib(VBO& const VBO, const GLuint layout, const GLuint numComponents, const GLenum type, const GLsizeiptr stride, const void* const offset, bool unbind) {
-	VBO.bind();
-	glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
-	glEnableVertexAttribArray(layout);
-	
-	// Добавил для сокращения кода, чтобы не писать каждый раз vao->bind()
-	if (unbind) VBO.unbind();
+VAO& VAO::operator=(VAO&& vao) noexcept
+{
+    this->m_UUID = vao.m_UUID;
+    this->m_elementsCount = vao.m_elementsCount;
+
+    vao.m_UUID = 0;
+    vao.m_elementsCount = 0;
+
+    return *this;
 }
 
-// Загрузить VAO
-void VAO::bind() {
-	glBindVertexArray(this->m_UUID);
+void VAO::  bind() const { glBindVertexArray(this->m_UUID); }
+void VAO::unbind()       { glBindVertexArray(0           ); }
+
+void VAO::add_vertexBuffer(const VBO& vbo)
+{
+    this->bind();
+
+    for (const BufferElement& current_element : vbo.get_layout().get_elements())
+    {
+        glEnableVertexAttribArray(this->m_elementsCount);
+
+        glBindVertexBuffer(this->m_elementsCount,
+            vbo.get_UUID(),
+            current_element.offset,
+            static_cast<GLsizei>(vbo.get_layout().get_stride()));
+
+        glVertexAttribFormat(this->m_elementsCount,
+            static_cast<GLint>(current_element.components_count),
+            current_element.component_type,
+            GL_FALSE,
+            0);
+
+        glVertexAttribBinding(this->m_elementsCount, this->m_elementsCount);
+
+        ++this->m_elementsCount;
+    }
 }
 
-// Выгрузить VAO
-void VAO::unbind() {
-	glBindVertexArray(0);
+void VAO::set_indexBuffer(const EBO& ebo)
+{
+    this->bind();
+    ebo.bind();
+    this->m_indicesCount = ebo.get_count();
 }
 
-// Удаление VAO
-void VAO::finalize() {
-	glDeleteVertexArrays(1, &this->m_UUID);
-}
-
-// Выгружаем и удаляем буфер
-VAO::~VAO() {
-	this->unbind();
-	this->finalize();
-}
+void VAO::finalize() { glDeleteVertexArrays(1, &this->m_UUID); }
+     VAO::~VAO()     { this->finalize();                       }

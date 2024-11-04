@@ -1,43 +1,41 @@
 #include "EBO.h"
 
-// Создать объект с уникальным ID и вставить данные
-EBO::EBO(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind) : m_UUID(-1) {
-	// Генерируем буфер, загружаем его, запихиваем данные
-	glGenBuffers(1, &this->m_UUID);
-	this->bind();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, usage);
+#include <glad/glad.h>
 
-	// Добавил для сокращения кода, чтобы не писать каждый раз ebo->bind()
-	if (unbind) this->unbind();
+EBO::EBO(const void* data, const size_t count, const Usage usage)
+{
+    glGenBuffers(1, &this->m_UUID);
+    this->bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usage_to_GLenum(usage));
 }
 
-// Загрузить EBO
-void EBO::bind() {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_UUID);
+EBO::EBO(EBO&& ebo) noexcept
+    : m_UUID(ebo.m_UUID)
+    , m_count(ebo.m_count)
+{
+    ebo.m_UUID  = 0;
+    ebo.m_count = 0;
 }
 
-// Выгрузить EBO
-void EBO::unbind() {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+EBO& EBO::operator=(EBO&& ebo) noexcept
+{
+    this->m_UUID  = ebo.m_UUID;
+    this->m_count = ebo.m_count;
+
+    ebo.m_UUID  = 0;
+    ebo.m_count = 0;
+
+    return *this;
 }
 
-// Удаление EBO
-void EBO::finalize() {
-	glDeleteBuffers(1, &this->m_UUID);
+void EBO::  bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_UUID); }
+void EBO::unbind()       { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0           ); }
+
+void EBO::reload(const void* data, const size_t count, const Usage usage)
+{
+    this->bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usage_to_GLenum(usage));
 }
 
-// Поменять данные, не меняя объект
-void EBO::reload(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind) {
-	// Загружаем буфер, запихиваем данные
-	this->bind();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, usage);
-
-	// Добавил для сокращения кода, чтобы не писать каждый раз ebo->bind()
-	if (unbind) this->unbind();
-}
-
-// Выгружаем и удаляем буфер
-EBO::~EBO() {
-	this->unbind();
-	this->finalize();
-}
+void EBO::finalize() { glDeleteBuffers(1, &this->m_UUID); }
+     EBO::~EBO()     { this->finalize();                  }

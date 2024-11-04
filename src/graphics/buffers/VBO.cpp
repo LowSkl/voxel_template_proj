@@ -1,43 +1,38 @@
 #include "VBO.h"
 
-// Создать объект с уникальным ID и вставить данные
-VBO::VBO(const GLfloat* vertices, const GLsizeiptr size, const GLenum usage, bool unbind) : m_UUID(-1) {
-	// Генерируем буфер, загружаем его, запихиваем данные
-	glGenBuffers(1, &this->m_UUID);
-	this->bind();
-	glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
+#include <utils/Log.h>
+#include <glad/glad.h>
 
-	// Добавил для сокращения кода, чтобы не писать каждый раз vbo->bind()
-	if (unbind) this->unbind();
+VBO::VBO(const void* data, const size_t size, BufferLayout bufferLayout, const Usage usage) : m_bufferLayout(std::move(bufferLayout))
+{
+    glGenBuffers(1, &this->m_UUID);
+    this->bind();
+    glBufferData(GL_ARRAY_BUFFER, size, data, usage_to_GLenum(usage));
 }
 
-// Загрузить VBO
-void VBO::bind() {
-	glBindBuffer(GL_ARRAY_BUFFER, this->m_UUID);
+VBO& VBO::operator=(VBO&& vbo) noexcept
+{
+    this->m_UUID = vbo.m_UUID;
+    vbo.m_UUID = 0;
+    return *this;
 }
 
-// Выгрузить VBO
-void VBO::unbind() {
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+VBO::VBO(VBO&& vbo) noexcept
+    : m_UUID(vbo.m_UUID)
+    , m_bufferLayout(std::move(vbo.m_bufferLayout))
+{
+    vbo.m_UUID = 0;
 }
 
-// Удаление VBO
-void VBO::finalize() {
-	glDeleteBuffers(1, &this->m_UUID);
+void VBO::reload(const void* data, const size_t size, BufferLayout bufferLayout, const Usage usage)
+{
+    this->m_bufferLayout = std::move(bufferLayout);
+    this->bind();
+    glBufferData(GL_ARRAY_BUFFER, size, data, usage_to_GLenum(usage));
 }
 
-// Поменять данные, не меняя объект
-void VBO::reload(const GLfloat* vertices, const GLsizeiptr size, const GLenum usage, bool unbind) {
-	// Загружаем буфер, запихиваем данные
-	this->bind();
-	glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
+void VBO::  bind() const { glBindBuffer(GL_ARRAY_BUFFER, this->m_UUID); }
+void VBO::unbind()       { glBindBuffer(GL_ARRAY_BUFFER, 0           ); }
 
-	// Добавил для сокращения кода, чтобы не писать каждый раз vbo->bind()
-	if (unbind) this->unbind();
-}
-
-// Выгружаем и удаляем буфер
-VBO::~VBO() {
-	this->unbind();
-	this->finalize();
-}
+void VBO::finalize() { glDeleteBuffers(1, &this->m_UUID); }
+     VBO::~VBO()     { this->finalize();                  }

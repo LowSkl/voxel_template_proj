@@ -1,100 +1,123 @@
 #include <iostream>
-#include <math.h>
+#include <format>
+
+#include <window/Window.h>
+#include <window/Input.h>
+#include <modules/UI.h>
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <utils/Log.h>
 
-#include <window/Window.h>
-#include <window/Events.h>
-
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
-#include <imgui_internal.h>
-
 #include <graphics/Shader.h>
 #include <graphics/Texture.h>
 
-#include <graphics/buffers/VAO.h>
 #include <graphics/buffers/EBO.h>
 #include <graphics/buffers/VBO.h>
+#include <graphics/buffers/VAO.h>
 
-#include <math.h>
+int main()
+{
+    std::shared_ptr<Window> windows[4];
 
-#define WIDTH 800
-#define HEIGHT 800
+    std::shared_ptr<Shader> shaders[4];
+    std::shared_ptr<Texture> textures[4];
 
-int main(int argc, char* argv[]) {
-    Window::initialize(WIDTH, HEIGHT, "Window 2.0");
+    std::shared_ptr<VAO> vaos[4];
+    std::shared_ptr<VBO> vbos[4];
+    std::shared_ptr<EBO> ebos[4];
 
-    static float background_color_test[4]{0.f, 0.f, 0.f, 0.f};
+    BufferLayout lay_down_NOW_23_yo
+    {
+        ShaderDataType::Float3,
+        ShaderDataType::Float3,
+        ShaderDataType::Float2
+    };
 
     static const GLfloat verts[]{
         //     COORDINATES     /        COLORS      /   TexCoord  //
-           -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner
-           -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner
-            0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
-            0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
+           -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner 1
+           -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner 1
+            0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner 1
+            0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f,  // Lower right corner 1
     };
 
     static const GLuint indices[]{
-        0, 2, 1, // Upper triangle
-        0, 3, 2 // Lower triangle
+        0, 2, 1, // Upper triangle 1
+        0, 3, 2, // Lower triangle 1
     };
 
-    std::unique_ptr<Shader> shader(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
-    std::unique_ptr<Texture> texture(Texture::load_texture("resources/textures/pop_cat.png", GL_TEXTURE_2D, -1, GL_RGBA, GL_UNSIGNED_BYTE));
+    const unsigned short unit = 0;
 
-    VAO vao(true);
-    VBO vbo(verts, sizeof(verts), GL_STATIC_DRAW, false);
-    EBO ebo(indices, sizeof(indices), GL_STATIC_DRAW, false);
+	for (size_t i = 0; i < 4; i++)
+	{
+        const struct
+        {
+            float r, g, b;
+        } colors[] =
+        {
+            { 0.95f, 0.32f, 0.11f },
+            { 0.50f, 0.80f, 0.16f },
+            {   0.f, 0.68f, 0.94f },
+            { 0.98f, 0.74f, 0.04f }
+        };
 
-    vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
-    vao.linkAttrib(vbo, 1, 3, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    vao.linkAttrib(vbo, 2, 2, GL_FLOAT, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+		windows[i] = std::make_shared<Window>(std::format("test {}", i+1), 500, 500);
+        glClearColor(colors[i].r, colors[i].g, colors[i].b, 1.f);
 
-    vao.unbind();
-    vbo.unbind();
-    ebo.unbind();
+        //test zone
+        shaders[i] = std::shared_ptr<Shader>(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
+        if (!shaders[i]->is_compiled()) { LCRITICAL("uhh..."); return 1; }
 
-    GLuint uniID1 = glGetUniformLocation(shader->get_UUID(), "scale");
-    GLuint uniID2 = glGetUniformLocation(shader->get_UUID(), "addVec");
-    GLuint uniID3 = glGetUniformLocation(shader->get_UUID(), "tex0");
+        textures[i] = std::shared_ptr<Texture>(Texture::load_texture("resources/textures/pop_cat.png", TextureType::Texture_2D, unit, TextureFormat::RGBA, PixelType::Unsigned_byte));
 
-    float scale = 1.f;
-    glm::vec3 addVec{ 0.f, 0.f, 0.f };
+        vaos[i] = std::make_shared<VAO>();
+        vbos[i] = std::make_shared<VBO>(verts, sizeof(verts), lay_down_NOW_23_yo);
+        ebos[i] = std::make_shared<EBO>(indices, sizeof(indices) / sizeof(GLuint));
 
-    while (!Window::is_shouldClose()) {
-        Window::update([&]() {
-                ImGui::Begin("test color");
-                ImGui::ColorEdit4("background", background_color_test);
-                ImGui::NewLine();
-                ImGui::Text("mouse pos: %dx%d", Events::get_mousePosX(), Events::get_mousePosY());
-                ImGui::Text("window size: %dx%d", Window::get_width(), Window::get_height());
-                ImGui::NewLine();
-                ImGui::SliderFloat("scale", &scale, -5.f, 5.f);
-                ImGui::SliderFloat("add x", &addVec.x, -10.f, 10.f);
-                ImGui::SliderFloat("add y", &addVec.y, -10.f, 10.f);
-                ImGui::SliderFloat("add z", &addVec.z, -10.f, 10.f);
-                ImGui::End();
+        vaos[i]->add_vertexBuffer(*vbos[i]);
+        vaos[i]->set_indexBuffer(*ebos[i]);
+        //test zone
 
-                shader->bind();
+    }
 
-                glUniform1f(uniID1, scale);
-                glUniform3f(uniID2, addVec.x, addVec.y, addVec.z);
-                glUniform1i(uniID3, 0);
+    while (Window::get_windowsCount() != 0)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (windows[i] == nullptr)
+                continue;
 
-                texture->bind();
-                vao.bind();
+            windows[i]->get_ui()->updateBegin();
 
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                glClearColor(background_color_test[0], background_color_test[1], background_color_test[2], background_color_test[3]);
-            }
-        );
-    } Window::finalize();
+            ImGui::Begin(windows[i]->get_title()->c_str());
+            ImGui::Text("hi %d", windows[i]->get_ui()->get_count());
+            ImGui::End();
 
-    return 0;
+            glClear(GL_COLOR_BUFFER_BIT);
+            windows[i]->get_ui()->updateEnd();
+
+            //test zone
+            shaders[i]->bind();
+            vaos[i]->bind();
+
+            GLuint texID = glGetUniformLocation(shaders[i]->get_UUID(), "tex0");
+            glUniform1i(texID, unit);
+
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            //test zone
+
+            windows[i]->update();
+            Input::update();
+
+            if (windows[i]->is_shouldClose())
+                windows[i] = nullptr;
+        }
+    }
 }

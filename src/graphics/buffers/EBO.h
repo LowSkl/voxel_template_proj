@@ -1,28 +1,29 @@
 #pragma once
 
-#include<glad/glad.h>
+#include "../SneakyThings.h"
 
-/* Element Buffer Object
- * Последовательность отрисовки вершин
- */
-class EBO {
-	GLuint m_UUID;
+class EBO
+{
+    unsigned int m_UUID  = 0;
+    unsigned int m_count = 0;
+
+    void finalize();
 
 public:
-	EBO(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
-	virtual ~EBO();
+    EBO(const void* data, const size_t count, const Usage usage = Usage::Static);
+    ~EBO();
 
-	// Загрузить EBO
-	void bind();
+    EBO(const EBO&     ) = delete;
+    EBO(      EBO&& ebo) noexcept;
 
-	// Выгрузить EBO
-	static void unbind();
+    EBO& operator=(const EBO&     ) = delete;
+    EBO& operator=(      EBO&& ebo) noexcept;
 
-	// Удалить EBO
-	void finalize();
+    void bind() const;
+    static void unbind();
 
-	// Поменять данные, не меняя объект
-	void reload(const GLuint* const indices, const GLsizeiptr size, const GLenum usage, bool unbind = true);
+    void reload(const void* data, const size_t count, const Usage usage = Usage::Static);
 
-	GLuint get_UUID() const { return this->m_UUID; }
+    unsigned int get_UUID()  const { return m_UUID;  }
+    unsigned int get_count() const { return m_count; }
 };

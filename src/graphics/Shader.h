@@ -1,32 +1,40 @@
 #pragma once
 
-#include <string>
+#include "SneakyThings.h"
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-class Shader {
-	GLuint m_UUID;
+class Shader
+{
+	unsigned int m_UUID = 0;
+    bool m_is_compiled = false;
+
+	void finalize();
+    bool create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID);
 
 public:
-	Shader(const std::string vertexCode, const std::string fragmentCode);
-	virtual ~Shader();
+    static Shader* load_shader(const char* vertexFile, const char* fragmentFile);
 
-	// Загрузить шейдер
-	void bind();
+    Shader(const char* vertexCode, const char* fragmentCode);
+    Shader(Shader&& shader) noexcept;
+    Shader& operator=(Shader&& shader) noexcept;
+    ~Shader();
 
-	// Выгрузить шейдер
-	static void unbind();
+    Shader()                         = delete;
+    Shader(const Shader&)            = delete;
+    Shader& operator=(const Shader&) = delete;
 
-	// Удалить шейдер
-	void finalize();
+    void bind() const;
+    static void unbind();
 
-	// Вставить матрицу трансформации
-	void uniformMatrix(const std::string name, const glm::mat4 matrix);
+    unsigned int get_UUID() const { return m_UUID;        }
+    bool is_compiled()      const { return m_is_compiled; }
 
-	// Загрузить шейдер из файла
-	static Shader* load_shader(const std::string vertexFile, const std::string fragmentFile);
-
-	GLuint get_UUID() const { return this->m_UUID; }
+    void set_matrix4(const char* name, const glm::mat4& matrix) const;
+    void set_matrix3(const char* name, const glm::mat3& matrix) const;
+    void set_int(const char* name, const int value) const;
+    void set_float(const char* name, const float value) const;
+    void set_vec3(const char* name, const glm::vec3& value) const;
 };
 

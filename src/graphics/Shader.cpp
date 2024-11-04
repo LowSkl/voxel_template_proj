@@ -1,107 +1,141 @@
 #include "Shader.h"
 
-#include <fstream>
-#include <sstream>
-
+#include <glad/glad.h>
 #include <utils/Log.h>
 #include <utils/FileUtils.h>
 
-#include <glm/gtc/type_ptr.hpp>
+#include <fstream>
+#include <sstream>
+#include <string>
 
-// Загрузить шейдер из файла
-Shader* Shader::load_shader(const std::string vertexFile, const std::string fragmentFile) {
-	std::string vertexCode;
-	std::string fragmentCode;
+Shader* Shader::load_shader(const char* vertexFile, const char* fragmentFile) {
+    std::string vertexCode;
+    std::string fragmentCode;
 
-	try { // Получаем все, что написано в файлах
-		vertexCode = get_fileContents(vertexFile);
-		fragmentCode = get_fileContents(fragmentFile);
-	} catch (std::ifstream::failure& e) {
-		LCRITICAL("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ");
-		return nullptr;
-	}
+    try {
+        vertexCode = get_fileContents(vertexFile);
+        fragmentCode = get_fileContents(fragmentFile);
 
-	return new Shader(vertexCode, fragmentCode);
+        //LINFO(vertexCode);
+        //LINFO(fragmentCode);
+    }
+    catch (std::ifstream::failure& e) {
+        LCRITICAL("Shader file read error:\n{}", e.what());
+        return nullptr;
+    }
+
+    return new Shader(vertexCode.c_str(), fragmentCode.c_str());
 }
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode) : m_UUID(-1) {
-	const GLchar* vShaderCode = vertexCode.c_str();
-	const GLchar* fShaderCode = fragmentCode.c_str();
+bool Shader::create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID)
+{
+    shaderUUID = glCreateShader(shader_type_to_component_type(shaderType));
+    glShaderSource(shaderUUID, 1, &code, nullptr);
+    glCompileShader(shaderUUID);
 
-	GLuint vertex, fragment;
-	GLint success;
-	GLchar infoLog[512];
+    GLint success;
+    glGetShaderiv(shaderUUID, GL_COMPILE_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        char info_log[1024];
+        glGetShaderInfoLog(shaderUUID, 1024, nullptr, info_log);
 
-	// Vertex Shader
-	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vShaderCode, nullptr);
-	glCompileShader(vertex);
-	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-		LCRITICAL("SHADER::VERTEX: compilation failed");
-		LCRITICAL(infoLog);
-		return;
-	}
-
-	// Fragment Shader
-	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fShaderCode, nullptr);
-	glCompileShader(fragment);
-	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-		LCRITICAL("SHADER::FRAGMENT: compilation failed");
-		LCRITICAL(infoLog);
-		return;
-	}
-
-	// Shader Program
-	GLuint id = glCreateProgram();
-	glAttachShader(id, vertex);
-	glAttachShader(id, fragment);
-	glLinkProgram(id);
-
-	glGetProgramiv(id, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(id, 512, nullptr, infoLog);
-		LCRITICAL("SHADER::PROGRAM: linking failed");
-		LCRITICAL(infoLog);
-
-		glDeleteShader(vertex);
-		glDeleteShader(fragment);
-		return;
-	}
-
-	this->m_UUID = id;
-
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
+        LCRITICAL("Shader compilation error:\n{}", info_log);
+        return false;
+    }
+    
+    return true;
 }
 
-// Вставить матрицу трансформации
-void Shader::uniformMatrix(const std::string name, const glm::mat4 matrix) {
-	GLuint transformLoc = glGetUniformLocation(this->m_UUID, name.c_str());
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+Shader::Shader(const char* vertexCode, const char* fragmentCode)
+{
+    GLuint vertex_shader_id = 0;
+    if (!create_shader(vertexCode, ShaderType::Vertex, vertex_shader_id))
+    {
+        LCRITICAL("VERTEX SHADER: compile-time error!");
+        glDeleteShader(vertex_shader_id);
+        return;
+    }
+
+    GLuint fragment_shader_id = 0;
+    if (!create_shader(fragmentCode, ShaderType::Fragment, fragment_shader_id))
+    {
+        LCRITICAL("FRAGMENT SHADER: compile-time error!");
+        glDeleteShader(vertex_shader_id);
+        glDeleteShader(fragment_shader_id);
+        return;
+    }
+
+    this->m_UUID = glCreateProgram();
+    glAttachShader(this->m_UUID, vertex_shader_id);
+    glAttachShader(this->m_UUID, fragment_shader_id);
+    glLinkProgram(this->m_UUID);
+
+    GLint success;
+    glGetProgramiv(this->m_UUID, GL_LINK_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        GLchar info_log[1024];
+        glGetProgramInfoLog(this->m_UUID, 1024, nullptr, info_log);
+        LCRITICAL("SHADER PROGRAM: Link-time error:\n{0}", info_log);
+        this->finalize();
+        glDeleteShader(vertex_shader_id);
+        glDeleteShader(fragment_shader_id);
+        return;
+    }
+    else this->m_is_compiled = true;
+
+    glDetachShader(this->m_UUID, vertex_shader_id);
+    glDetachShader(this->m_UUID, fragment_shader_id);
+    glDeleteShader(vertex_shader_id);
+    glDeleteShader(fragment_shader_id);
 }
 
-// Загрузить шейдер
-void Shader::bind() {
-	glUseProgram(this->m_UUID);
+Shader::Shader(Shader&& shader) noexcept : m_UUID(shader.m_UUID), m_is_compiled(shader.m_is_compiled)
+{
+    shader.m_UUID = 0;
+    shader.m_is_compiled = false;
 }
 
-// Выгрузить шейдер
-void Shader::unbind() {
-	glUseProgram(0);
+Shader& Shader::operator=(Shader&& shader) noexcept
+{
+    this->finalize();
+    this->m_UUID = shader.m_UUID;
+    this->m_is_compiled = shader.m_is_compiled;
+
+    shader.m_UUID = 0;
+    shader.m_is_compiled = false;
+
+    return *this;
 }
 
-// Удалить шейдер
-void Shader::finalize() {
-	glDeleteProgram(this->m_UUID);
+void Shader::set_matrix4(const char* name, const glm::mat4& matrix) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(this->m_UUID, name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-// Выгружаем и удаляем шейдер
-Shader::~Shader() { 
-	this->unbind();
-	this->finalize(); 
+void Shader::set_matrix3(const char* name, const glm::mat3& matrix) const
+{
+    glUniformMatrix3fv(glGetUniformLocation(this->m_UUID, name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
+
+void Shader::set_int(const char* name, const int value) const
+{
+    glUniform1i(glGetUniformLocation(this->m_UUID, name), value);
+}
+
+void Shader::set_float(const char* name, const float value) const
+{
+    glUniform1f(glGetUniformLocation(this->m_UUID, name), value);
+}
+
+void Shader::set_vec3(const char* name, const glm::vec3& value) const
+{
+    glUniform3f(glGetUniformLocation(this->m_UUID, name), value.x, value.y, value.z);
+}
+
+void Shader::  bind() const { glUseProgram(this->m_UUID); }
+void Shader::unbind()       { glUseProgram(0);            }
+
+void Shader::finalize() { glDeleteProgram(this->m_UUID); }
+     Shader::~Shader()  { this->finalize();              }

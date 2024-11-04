@@ -7,11 +7,11 @@ layout(location = 2) in vec2 vertex_texture;
 out vec3 color;
 out vec2 texture_pos;
 
-uniform float scale;
-uniform vec3 addVec;
+uniform mat4 model;
+uniform mat4 projview;
 
 void main() {
    color = vertex_color;
-   gl_Position = vec4((vertex_position + addVec) * scale, 1.0);
+   gl_Position = projview * model * vec4(vertex_position, 1.0);
    texture_pos = vertex_texture;
 }
