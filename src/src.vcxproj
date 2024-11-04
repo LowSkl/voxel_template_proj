@@ -176,6 +176,7 @@
     <ClCompile Include="graphics\buffers\VBO.cpp" />
     <ClCompile Include="modules\UI.cpp" />
     <ClCompile Include="graphics\Texture.cpp" />
+    <ClCompile Include="window\RenderOpenGL.cpp" />
     <ClCompile Include="window\Input.cpp" />
     <ClCompile Include="window\Window.cpp" />
     <ClCompile Include="main.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="graphics\Shader.h" />
     <ClInclude Include="modules\UI.h" />
     <ClInclude Include="graphics\Texture.h" />
+    <ClInclude Include="window\RenderOpenGL.h" />
     <ClInclude Include="utils\FileUtils.h" />
     <ClInclude Include="graphics\buffers\VAO.h" />
     <ClInclude Include="graphics\buffers\VBO.h" />

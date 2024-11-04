@@ -69,6 +69,7 @@ int main()
         };
 
 		windows[i] = std::make_shared<Window>(std::format("test {}", i+1), 500, 500);
+        windows[i]->get_render()->enable_depth_test();
         glClearColor(colors[i].r, colors[i].g, colors[i].b, 1.f);
 
         //test zone
@@ -100,17 +101,16 @@ int main()
             ImGui::Text("hi %d", windows[i]->get_ui()->get_count());
             ImGui::End();
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            windows[i]->get_render()->clear();
             windows[i]->get_ui()->updateEnd();
 
             //test zone
             shaders[i]->bind();
             vaos[i]->bind();
 
-            GLuint texID = glGetUniformLocation(shaders[i]->get_UUID(), "tex0");
-            glUniform1i(texID, unit);
+            shaders[i]->set_int("tex0", unit);
 
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            windows[i]->get_render()->draw(*vaos[i]); 
             //test zone
 
             windows[i]->update();

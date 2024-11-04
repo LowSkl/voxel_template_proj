@@ -1,5 +1,8 @@
 #include <window/Window.h>
 
+#include "Input.h"
+#include "RenderOpenGL.h"
+
 #include <GLFW/glfw3.h>
 #include <utils/Log.h>
 
@@ -97,6 +100,18 @@ int Input::initialize()
 
             LINFO("[Input {}]\twindow resized {}x{}", pMyInput->get_count(), width, height);
             pMyWindow->set_size(width, height);
+        }
+    );
+
+    glfwSetFramebufferSizeCallback(this->m_pWindow->get_window(), 
+        [](GLFWwindow* pWindow, int width, int height) 
+        {
+            Window*       pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
+            RenderOpenGL* pMyRender = pMyWindow->get_render();
+            Input*        pMyInput = pMyWindow->get_input();
+
+            pMyRender->set_viewport(width, height, 0, 0);
+            LINFO("[Input {}]\tbuffer resized {}x{}", pMyInput->get_count(), width, height);
         }
     );
 

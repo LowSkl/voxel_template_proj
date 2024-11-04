@@ -1,8 +1,6 @@
 #include "Window.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <utils/Log.h>
 
 unsigned short Window::m_windowsCount = 0;
@@ -51,13 +49,10 @@ int Window::initialize()
 	} this->make_contextActive();
 
 	glfwSetWindowUserPointer(this->m_pWindow, this);
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		LCRITICAL("[Window {}]\tCan't init GLAD", this->m_count);
-		return Window::Returns::CANT_INIT_GLAD;
-	}
 
-	this->m_ui    = std::make_shared<UI   >(this);
-	this->m_input = std::make_shared<Input>(this);
+	this->m_render = std::make_shared<RenderOpenGL>(this);
+	this->m_ui     = std::make_shared<UI          >(this);
+	this->m_input  = std::make_shared<Input       >(this);
 
 	return Window::Returns::NO_ERRORS;
 }

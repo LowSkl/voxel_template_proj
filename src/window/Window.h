@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "Input.h"
+#include "RenderOpenGL.h"
 #include <modules/UI.h>
 
 struct GLFWwindow;
@@ -18,9 +19,11 @@ class Window
 	bool m_cursorLocked   = false;
 	bool m_is_shouldClose = false;
 
-	std::string            m_title = nullptr;
-	std::shared_ptr<Input> m_input = nullptr;
-	std::shared_ptr<UI>    m_ui = nullptr;
+	std::string m_title = nullptr;
+
+	std::shared_ptr<RenderOpenGL> m_render = nullptr;
+	std::shared_ptr<Input>        m_input  = nullptr;
+	std::shared_ptr<UI>           m_ui     = nullptr;
 
 	unsigned short m_width  = 0;
 	unsigned short m_height = 0;
@@ -34,8 +37,7 @@ public:
 	{
 		NO_ERRORS        =  0,
 		CANT_INIT_GLFW   = -1,
-		CANT_INIT_GLAD   = -2,
-		CANT_INIT_WINDOW = -3,
+		CANT_INIT_WINDOW = -2,
 	};
 
 	static constexpr std::string returnsToString(int code)
@@ -47,9 +49,6 @@ public:
 			break;
 		case Window::Returns::CANT_INIT_GLFW:
 			return "CANT_INIT_GLFW";
-			break;
-		case Window::Returns::CANT_INIT_GLAD:
-			return "CANT_INIT_GLAD";
 			break;
 		case Window::Returns::CANT_INIT_WINDOW:
 			return "CANT_INIT_WINDOW";
@@ -78,8 +77,9 @@ public:
 	       GLFWwindow* const get_window() const { return  this->m_pWindow; }
 	const std::string* const get_title()  const { return &this->m_title; }
 
-	Input* const get_input()  const { return this->m_input.get(); }
-	UI*    const get_ui()     const { return this->m_ui.get();    }
+	RenderOpenGL* const get_render() const { return this->m_render.get(); }
+	Input*        const get_input()  const { return this->m_input.get();  }
+	UI*           const get_ui()     const { return this->m_ui.get();     }
 
 	unsigned short get_width()  const { return this->m_width;  }
 	unsigned short get_height() const { return this->m_height; }

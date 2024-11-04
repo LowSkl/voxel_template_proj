@@ -42,6 +42,9 @@
     <ClCompile Include="window\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="window\RenderOpenGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\Log.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graphics\SneakyThings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window\RenderOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

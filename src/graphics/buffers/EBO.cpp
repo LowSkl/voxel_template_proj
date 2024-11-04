@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-EBO::EBO(const void* data, const size_t count, const Usage usage)
+EBO::EBO(const void* data, const size_t count, const Usage usage) : m_count(count)
 {
     glGenBuffers(1, &this->m_UUID);
     this->bind();
