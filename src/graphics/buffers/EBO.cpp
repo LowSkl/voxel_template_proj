@@ -2,11 +2,11 @@
 
 #include <glad/glad.h>
 
-EBO::EBO(const void* data, const size_t count, const Usage usage) : m_count(count)
+EBO::EBO(const void* data, const size_t size, const Usage usage) : m_count(size / sizeof(GLuint))
 {
     glGenBuffers(1, &this->m_UUID);
     this->bind();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usage_to_GLenum(usage));
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage_to_GLenum(usage));
 }
 
 EBO::EBO(EBO&& ebo) noexcept
@@ -31,10 +31,11 @@ EBO& EBO::operator=(EBO&& ebo) noexcept
 void EBO::  bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_UUID); }
 void EBO::unbind()       { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0           ); }
 
-void EBO::reload(const void* data, const size_t count, const Usage usage)
+void EBO::reload(const void* data, const size_t size, const Usage usage)
 {
     this->bind();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usage_to_GLenum(usage));
+    this->m_count = size / sizeof(GLuint);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage_to_GLenum(usage));
 }
 
 void EBO::finalize() { glDeleteBuffers(1, &this->m_UUID); }
