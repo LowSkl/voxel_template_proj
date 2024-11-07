@@ -24,7 +24,7 @@
 
 int main()
 {
-    static const float verts[]{
+    static float verts[]{
         //     COORDINATES     /        COLORS      /   TexCoord  //
            -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner 1
            -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner 1
@@ -43,7 +43,7 @@ int main()
         ShaderDataType::Float2
     };
 
-    Window window("render test", 500, 500);
+    Window window("render test", 800, 800);
 
     RenderOpenGL* render = window.get_render();
     Input*        input  = window.get_input();
@@ -56,18 +56,13 @@ int main()
     auto shader  = std::shared_ptr<Shader>(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
     auto texture = std::shared_ptr<Texture>(Texture::load_texture("resources/textures/pop_cat.png", TextureType::Texture_2D, texture_slot, TextureFormat::RGBA, PixelType::Unsigned_byte));
 
-    auto vao = std::make_shared<VAO>();
-    auto vbo = std::make_shared<VBO>(verts, sizeof(verts), types);
-    auto ebo = std::make_shared<EBO>(indices, sizeof(indices));
-
-    vao->add_vertexBuffer(*vbo);
-    vao->set_indexBuffer(*ebo);
-
-    float scale [4]{ 1, 1, 1, 1 };
     float color [4]{ 1, 1, 1, 1 };
 
+    float scale[3]{ 1, 1, 1 };
     float rotate[3]{ 0, 0, 0 };
-    float transp[3]{ 0, 0, 0 };
+    float trans[3]{ 0, 0, 0 };
+
+    float* verts_col[4]{ &verts[3], &verts[11], &verts[19], &verts[27] };
 
     while (!window.is_shouldClose())
     {
@@ -75,52 +70,54 @@ int main()
         render->set_clear_color(color[0], color[1], color[2], color[3]);
 
         shader->bind();
+
+        auto vao = std::make_shared<VAO>();
+        auto vbo = std::make_shared<VBO>(verts, sizeof(verts), types);
+        auto ebo = std::make_shared<EBO>(indices, sizeof(indices));
+
+        vao->add_vertexBuffer(*vbo);
+        vao->set_indexBuffer(*ebo);
+
         vao->bind();
 
         shader->set_int("tex_slot", texture_slot);
-        shader->set_matrix4("scale_mat", glm::mat4( scale[0], 0,        0,        0, 
-                                                    0,        scale[1], 0,        0,
-                                                    0,        0,        scale[2], 0,
-                                                    0,        0,        0,        scale[3] ));
 
+        glm::mat4 Model = glm::mat4(1.0f);
 
-        float x_rot_rad = glm::radians(rotate[0]);
-        float y_rot_rad = glm::radians(rotate[1]);
-        float z_rot_rad = glm::radians(rotate[2]);
+        Model = glm::scale(glm::mat4(1.0f), glm::vec3(scale[0], scale[1], scale[2]));
+        Model = glm::translate(Model, glm::vec3(trans[0], trans[1], trans[2]));
 
-        glm::mat4 x_mat( cos(x_rot_rad), sin(x_rot_rad), 0,              0, 
-                        -sin(x_rot_rad), cos(x_rot_rad), 0,              0,
-                         0,              0,              1,              0,
-                         0,              0,              0,              1 );
+        Model = glm::rotate(Model, glm::radians(rotate[0]), glm::vec3(1, 0, 0));
+        Model = glm::rotate(Model, glm::radians(rotate[1]), glm::vec3(0, 1, 0));
+        Model = glm::rotate(Model, glm::radians(rotate[2]), glm::vec3(0, 0, 1));
 
-        glm::mat4 y_mat( cos(y_rot_rad), 0,              sin(y_rot_rad), 0,
-                         0,              1,              0,              0,
-                        -sin(y_rot_rad), 0,              cos(y_rot_rad), 0,
-                         0,              0,              0,              1 );
+        glm::mat4 MVP = Model;
 
-        glm::mat4 z_mat( cos(z_rot_rad),-sin(z_rot_rad), 0,              0,
-                         sin(z_rot_rad), cos(z_rot_rad), 0,              0,
-                         0,              0,              1,              0,
-                         0,              0,              0,              1 );
-
-        shader->set_matrix4("rotate_mat", x_mat * y_mat * z_mat);
-        shader->set_matrix4("transp_mat", glm::mat4( 1,         0,         0,         0,
-                                                     0,         1,         0,         0,
-                                                     0,         0,         1,         0,
-                                                     transp[0], transp[1], transp[2], 1 ));
-
+        shader->set_matrix4("MVP_matrix", MVP);
         render->draw(*vao);
 
         //UI
         {
             ui->updateBegin();
+
+            ImGui::SetNextWindowContentSize({ 500, 200 });
             ImGui::Begin("world settings");
-
-            ImGui::SliderFloat4("scale", scale, -2.5, 2.5);
-            ImGui::SliderFloat3("rotate", rotate, 0, 360);
-            ImGui::SliderFloat3("transp", transp, -2.5, 2.5);
-            ImGui::ColorEdit4("background", color);
-
+            {
+                ImGui::SliderFloat3("scale", scale, -2.5, 2.5);
+                ImGui::SliderFloat3("rotate", rotate, 0, 360);
+                ImGui::SliderFloat3("trans", trans, -2.5, 2.5);
+                ImGui::ColorEdit4("background", color);
+            }
+            ImGui::End();
+            
+            ImGui::SetNextWindowContentSize({ 500, 200 });
+            ImGui::Begin("verts settings");
+            {
+                ImGui::ColorEdit3("vert 0 color", verts_col[0]);
+                ImGui::ColorEdit3("vert 1 color", verts_col[1]);
+                ImGui::ColorEdit3("vert 2 color", verts_col[2]);
+                ImGui::ColorEdit3("vert 3 color", verts_col[3]);
+            }
             ImGui::End();
             ui->updateEnd();
         }

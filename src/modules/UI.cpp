@@ -36,6 +36,9 @@ int UI::initialize()
 
     ImGuiIO& io = ImGui::GetIO();
 
+    io.ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_ViewportsEnable;
+
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
 
@@ -62,6 +65,13 @@ void UI::updateEnd()
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
 }
 
 void UI::make_contextActive()

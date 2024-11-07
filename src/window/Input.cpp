@@ -156,7 +156,20 @@ void Input::update()
 	glfwPollEvents(); 
 }
 
+void Input::finalize()
+{
+    LINFO("[Input {}]\tunbinding callbacks", this->m_count);
+
+    glfwSetKeyCallback            (this->m_pWindow->get_window(), nullptr);
+    glfwSetMouseButtonCallback    (this->m_pWindow->get_window(), nullptr);
+    glfwSetWindowSizeCallback     (this->m_pWindow->get_window(), nullptr);
+    glfwSetFramebufferSizeCallback(this->m_pWindow->get_window(), nullptr);
+    glfwSetCursorPosCallback      (this->m_pWindow->get_window(), nullptr);
+    glfwSetWindowCloseCallback    (this->m_pWindow->get_window(), nullptr);
+}
+
 Input::~Input()
 {
     LINFO("[Input {}]\tInput::~Input()", this->m_count);
+    this->finalize();
 }

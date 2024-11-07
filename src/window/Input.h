@@ -21,6 +21,7 @@ class Input
 	float m_mousePosDeltaY = 0;
 
 	int initialize();
+	void finalize();
 
 public:
 	enum Returns

@@ -99,7 +99,7 @@ void Window::finalize()
 	glfwDestroyWindow(this->m_pWindow);
 
 	this->m_input = nullptr;
-	this->m_ui = nullptr;
+	this->m_ui    = nullptr;
 
 	if (Window::m_windowsCount-- == 1) {
 		LINFO("Last window, terminating GLFW");

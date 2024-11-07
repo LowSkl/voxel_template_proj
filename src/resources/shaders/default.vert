@@ -7,12 +7,10 @@ layout(location = 2) in vec2 vertex_texture;
 out vec3 color;
 out vec2 texture_pos;
 
-uniform mat4 scale_mat;
-uniform mat4 rotate_mat;
-uniform mat4 transp_mat;
+uniform mat4 MVP_matrix;
 
 void main() {
    color = vertex_color;
-   gl_Position = transp_mat * rotate_mat * scale_mat * vec4(vertex_position, 1.0);
+   gl_Position = MVP_matrix * vec4(vertex_position, 1.0);
    texture_pos = vertex_texture;
 }

@@ -85,6 +85,8 @@ int RenderOpenGL::initialize()
                     message);
                 break;
             case GL_DEBUG_SEVERITY_MEDIUM:
+                if (id == 131218) break; // state performance warning: Fragment Shader is going to be recompiled
+
                 LERROR("OpenGL Warning: [{0}:{1}]({2}): {3}",
                     gl_source_to_string(source),
                     gl_type_to_string(type),
