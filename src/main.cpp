@@ -147,7 +147,7 @@ int main()
                 ImGui::SliderFloat3("trans", trans, -2.5, 2.5);
                 ImGui::ColorEdit4("background", color);
             }
-            ImGui::End();
+            ImGui::End(); 
             ui->updateEnd();
         }
 
