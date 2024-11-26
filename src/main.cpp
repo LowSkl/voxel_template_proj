@@ -131,7 +131,7 @@ int main()
 
         shader->set_matrix4("MVP", camera.get_projection_matrix() * camera.get_view_matrix() * Model);
         render->draw(*vao);
-
+         
         //UI
         {
             ui->updateBegin();
