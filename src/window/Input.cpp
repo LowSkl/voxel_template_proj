@@ -21,17 +21,17 @@ Input::Input(Window* pWindow) :
 
 int Input::initialize()
 {
-	LINFO("[Input {}]\tInput::initialize()", this->m_count);
+    LINFO("[Input {}]\tInput::initialize()", this->m_count);
 
-	memset(this->m_keysPressed,         false, (static_cast<size_t>(    KeyCode::KEY_LAST         ) + 1) * sizeof(bool));
-	memset(this->m_mouseButtonsPressed, false, (static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1) * sizeof(bool));
+    memset(this->m_keysPressed,         false, (static_cast<size_t>(    KeyCode::KEY_LAST) + 1)          * sizeof(bool));
+    memset(this->m_mouseButtonsPressed, false, (static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1) * sizeof(bool));
 
-    glfwSetKeyCallback(this->m_pWindow->get_window(), 
+    glfwSetKeyCallback(this->m_pWindow->get_window(),
         [](GLFWwindow* pWindow, int key, int scancode, int action, int mods)
         {
             Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
-            Input*  pMyInput  = pMyWindow->get_input();
-            UI*     pMyUI     = pMyWindow->get_ui();
+            Input* pMyInput = pMyWindow->get_input();
+            UI* pMyUI = pMyWindow->get_ui();
 
             if (pMyUI != nullptr) {
                 pMyUI->make_contextActive();
@@ -52,13 +52,9 @@ int Input::initialize()
                 pMyInput->get_keysPressed()[key] = false;
                 break;
             }
-            case GLFW_REPEAT:
-            {
-                if (key <= static_cast<int>(KeyCode::KEY_Z)) LINFO("[Input {}]\tkey {} repeated", pMyInput->get_count(), static_cast<char>(key));
-                pMyInput->get_keysPressed()[key] = true;
-                break;
             }
-            }
+
+            pMyInput->get_keyFrames()[key] = pMyInput->get_currentFrame();
         }
     );
 
@@ -66,8 +62,8 @@ int Input::initialize()
         [](GLFWwindow* pWindow, int button, int action, int mods)
         {
             Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
-            Input*  pMyInput  = pMyWindow->get_input();
-            UI*     pMyUI     = pMyWindow->get_ui();
+            Input* pMyInput = pMyWindow->get_input();
+            UI* pMyUI = pMyWindow->get_ui();
 
             if (pMyUI != nullptr) {
                 pMyUI->make_contextActive();
@@ -89,6 +85,8 @@ int Input::initialize()
                 break;
             }
             }
+
+            pMyInput->get_mouseButtonFrames()[button] = pMyInput->get_currentFrame();
         }
     );
 
@@ -96,19 +94,19 @@ int Input::initialize()
         [](GLFWwindow* pWindow, int width, int height)
         {
             Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
-            Input*  pMyInput  = pMyWindow->get_input();
+            Input* pMyInput = pMyWindow->get_input();
 
             LINFO("[Input {}]\twindow resized {}x{}", pMyInput->get_count(), width, height);
             pMyWindow->set_size(width, height);
         }
     );
 
-    glfwSetFramebufferSizeCallback(this->m_pWindow->get_window(), 
-        [](GLFWwindow* pWindow, int width, int height) 
+    glfwSetFramebufferSizeCallback(this->m_pWindow->get_window(),
+        [](GLFWwindow* pWindow, int width, int height)
         {
-            Window*       pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
+            Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
             RenderOpenGL* pMyRender = pMyWindow->get_render();
-            Input*        pMyInput = pMyWindow->get_input();
+            Input* pMyInput = pMyWindow->get_input();
 
             pMyRender->set_viewport(width, height, 0, 0);
             LINFO("[Input {}]\tbuffer resized {}x{}", pMyInput->get_count(), width, height);
@@ -119,8 +117,8 @@ int Input::initialize()
         [](GLFWwindow* pWindow, double x, double y)
         {
             Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
-            Input*  pMyInput  = pMyWindow->get_input();
-            UI*     pMyUI     = pMyWindow->get_ui();
+            Input* pMyInput = pMyWindow->get_input();
+            UI* pMyUI = pMyWindow->get_ui();
 
             if (pMyUI != nullptr) {
                 pMyUI->make_contextActive();
@@ -141,10 +139,27 @@ int Input::initialize()
         [](GLFWwindow* pWindow)
         {
             Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
-            Input*  pMyInput  = pMyWindow->get_input();
+            Input* pMyInput = pMyWindow->get_input();
 
             pMyWindow->set_shouldClose(true);
             LINFO("[Input {}]\twindow closing", pMyInput->get_count());
+        }
+    );
+
+    glfwSetScrollCallback(this->m_pWindow->get_window(),
+        [](GLFWwindow* pWindow, double xoffset, double yoffset)
+        {
+            Window* pMyWindow = static_cast<Window*>(glfwGetWindowUserPointer(pWindow));
+            Input* pMyInput = pMyWindow->get_input();
+            UI* pMyUI = pMyWindow->get_ui();
+
+            if (pMyUI != nullptr) {
+                pMyUI->make_contextActive();
+                ImGui_ImplGlfw_ScrollCallback(pWindow, xoffset, yoffset);
+            }
+
+            pMyInput->set_scroll(yoffset);
+            LINFO("[Input {}]\tscroll offset {}", pMyInput->get_count(), yoffset);
         }
     );
 
@@ -153,6 +168,13 @@ int Input::initialize()
 
 void Input::update() 
 {
+    this->m_currentFrame++;
+    
+    this->m_mousePosDeltaX = 0;
+    this->m_mousePosDeltaY = 0;
+
+    this->m_scroll = 0;
+
 	glfwPollEvents(); 
 }
 
@@ -166,6 +188,7 @@ void Input::finalize()
     glfwSetFramebufferSizeCallback(this->m_pWindow->get_window(), nullptr);
     glfwSetCursorPosCallback      (this->m_pWindow->get_window(), nullptr);
     glfwSetWindowCloseCallback    (this->m_pWindow->get_window(), nullptr);
+    glfwSetScrollCallback         (this->m_pWindow->get_window(), nullptr);
 }
 
 Input::~Input()

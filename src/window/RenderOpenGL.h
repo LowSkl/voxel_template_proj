@@ -54,5 +54,7 @@ public:
 	const char* get_vendor_str();
 	const char* get_renderer_str();
 	const char* get_version_str();
+
+	double getTime();
 };
 

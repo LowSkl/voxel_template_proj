@@ -8,6 +8,8 @@
 #include "RenderOpenGL.h"
 #include <modules/UI.h>
 
+#include <glm/vec2.hpp>
+
 struct GLFWwindow;
 
 class Window
@@ -27,6 +29,7 @@ class Window
 
 	unsigned short m_width  = 0;
 	unsigned short m_height = 0;
+
 	unsigned short m_count  = 0;
 
 	int initialize();
@@ -67,6 +70,10 @@ public:
 
 	void update() const;
 
+	bool is_iconified() const;
+	bool is_maximized() const;
+	bool is_focused()   const;
+
 	bool is_shouldClose() const { return this->m_is_shouldClose; };
 	void set_shouldClose(bool flag) { this->m_is_shouldClose = flag; };
 
@@ -87,6 +94,9 @@ public:
 
 	void set_width(unsigned short width);
 	void set_height(unsigned short height);
+
+	glm::vec2 get_pos() const;
+
 	void set_size(unsigned short width, unsigned short height);
 
 	bool is_cursorLocked() const { return this->m_cursorLocked; }

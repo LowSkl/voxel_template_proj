@@ -11,10 +11,10 @@ class Shader
     bool m_is_compiled = false;
 
 	void finalize();
-    bool create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID);
 
 public:
     static Shader* load_shader(const char* vertexFile, const char* fragmentFile);
+    static bool create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID);
 
     Shader(const char* vertexCode, const char* fragmentCode);
     Shader(Shader&& shader) noexcept;

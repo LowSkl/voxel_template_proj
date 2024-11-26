@@ -170,6 +170,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="modules\Camera.cpp" />
     <ClCompile Include="graphics\buffers\EBO.cpp" />
     <ClCompile Include="graphics\Shader.cpp" />
     <ClCompile Include="graphics\buffers\VAO.cpp" />
@@ -182,6 +183,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="modules\Camera.h" />
     <ClInclude Include="graphics\SneakyThings.h" />
     <ClInclude Include="graphics\buffers\EBO.h" />
     <ClInclude Include="graphics\Shader.h" />

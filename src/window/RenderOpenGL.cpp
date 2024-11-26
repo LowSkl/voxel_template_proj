@@ -171,5 +171,7 @@ const char* RenderOpenGL::get_version_str()
     return reinterpret_cast<const char*>(glGetString(GL_VERSION));
 }
 
+double RenderOpenGL::getTime() { return glfwGetTime(); }
+
 void RenderOpenGL::finalize()      {                   }
      RenderOpenGL::~RenderOpenGL() { this->finalize(); }

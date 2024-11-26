@@ -94,6 +94,28 @@ void Window::toggleCursor()
 	this->set_cursorMode(this->m_cursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
+bool Window::is_maximized() const
+{
+	return glfwGetWindowAttrib(this->m_pWindow, GLFW_MAXIMIZED);
+}
+
+bool Window::is_iconified() const
+{
+	return glfwGetWindowAttrib(this->m_pWindow, GLFW_ICONIFIED);
+}
+
+bool Window::is_focused() const
+{
+	return glfwGetWindowAttrib(this->m_pWindow, GLFW_FOCUSED);
+}
+
+glm::vec2 Window::get_pos() const
+{
+	int x, y;
+	glfwGetWindowPos(this->m_pWindow, &x, &y);
+	return glm::vec2(x, y);
+}
+
 void Window::finalize()
 {
 	glfwDestroyWindow(this->m_pWindow);
