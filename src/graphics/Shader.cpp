@@ -134,6 +134,11 @@ void Shader::set_vec3(const char* name, const glm::vec3& value) const
     glUniform3f(glGetUniformLocation(this->m_UUID, name), value.x, value.y, value.z);
 }
 
+void Shader::set_vec4(const char* name, const glm::vec4& value) const
+{
+    glUniform4f(glGetUniformLocation(this->m_UUID, name), value.x, value.y, value.z, value.w);
+}
+
 void Shader::  bind() const { glUseProgram(this->m_UUID); }
 void Shader::unbind()       { glUseProgram(0);            }
 

@@ -36,5 +36,6 @@ public:
     void set_int(const char* name, const int value) const;
     void set_float(const char* name, const float value) const;
     void set_vec3(const char* name, const glm::vec3& value) const;
+    void set_vec4(const char* name, const glm::vec4& value) const;
 };
 

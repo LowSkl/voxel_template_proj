@@ -5,6 +5,12 @@
 
 struct Window;
 
+enum class Primitivs
+{
+	TRIANGLES,
+	LINES
+};
+
 class RenderOpenGL
 {
 	static unsigned short m_renderCount;
@@ -44,7 +50,7 @@ public:
 	RenderOpenGL& operator=(const RenderOpenGL& ) = delete;
 	RenderOpenGL& operator=(      RenderOpenGL&&) = delete;
 
-	void draw(const VAO& vao);
+	void draw(const VAO& vao, Primitivs primitiv);
 	void set_clear_color(const float r, const float g, const float b, const float a);
 	void clear();
 	void set_viewport(const unsigned int width, const unsigned int height, const unsigned int left_offset = 0, const unsigned int bottom_offset = 0);
@@ -55,6 +61,6 @@ public:
 	const char* get_renderer_str();
 	const char* get_version_str();
 
-	double getTime();
+	double get_time();
 };
 

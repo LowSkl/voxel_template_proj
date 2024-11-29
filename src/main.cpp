@@ -25,35 +25,84 @@
 
 #include <math.h>
 
-#include <modules/Camera.h>
+#include <modules/camera/CameraControl.h>
 
 int main()
 {
-    static float verts[]{
-        //     COORDINATES      /        COLORS /   TexCoord    //
-       -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // 0
-       -0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // 1
-        0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f, // 2
-        0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // 3
-       -0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 1.0f,   0.0f, 0.0f, // 4
-       -0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 1.0f,   0.0f, 1.0f, // 5
-        0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // 6
-        0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // 7
+    // Vertices coordinates
+    static const float pyramide_vertices[] =
+    { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
+	    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+
+	    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+	    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+	     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+
+	    -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+	     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+	     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+
+	     0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
+	     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
+	     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
+
+	     0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
+	    -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
+	     0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
     };
 
-    static const unsigned int indices[]{
-        0, 1, 2, 0, 2, 3, // Back face
-        4, 5, 6, 4, 6, 7, // Front face
-        0, 4, 5, 0, 5, 1, // Left face
-        3, 7, 6, 3, 6, 2, // Right face
-        1, 5, 6, 1, 6, 2, // Top face
-        0, 3, 7, 0, 7, 4  // Bottom face
+    // Indices for vertices order
+    static const unsigned int pyramide_indices[] =
+    {
+        0, 1, 2, // Bottom side
+        0, 2, 3, // Bottom side
+        4, 6, 5, // Left side
+        7, 9, 8, // Non-facing side
+        10, 12, 11, // Right side
+        13, 15, 14 // Facing side
     };
 
-    BufferLayout types {
+    GLfloat light_vertices[] =
+    { //     COORDINATES     //
+        -0.1f, -0.1f,  0.1f,
+        -0.1f, -0.1f, -0.1f,
+         0.1f, -0.1f, -0.1f,
+         0.1f, -0.1f,  0.1f,
+        -0.1f,  0.1f,  0.1f,
+        -0.1f,  0.1f, -0.1f,
+         0.1f,  0.1f, -0.1f,
+         0.1f,  0.1f,  0.1f
+    };
+
+    GLuint light_indices[] =
+    {
+        0, 1, 2,
+        0, 2, 3,
+        0, 4, 7,
+        0, 7, 3,
+        3, 7, 6,
+        3, 6, 2,
+        2, 6, 5,
+        2, 5, 1,
+        1, 5, 4,
+        1, 4, 0,
+        4, 5, 6,
+        4, 6, 7
+    };
+
+
+    BufferLayout pyramide_types {
         ShaderDataType::Float3,
         ShaderDataType::Float3,
-        ShaderDataType::Float2
+        ShaderDataType::Float2,
+        ShaderDataType::Float3,
+    };
+
+    BufferLayout light_types{
+        ShaderDataType::Float3,
     };
 
     Window window("render test", 800, 800);
@@ -66,73 +115,95 @@ int main()
 
     static const unsigned short texture_slot = 0;
 
-    auto shader  = std::shared_ptr<Shader>(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
-    auto texture = std::shared_ptr<Texture>(Texture::load_texture("resources/textures/pop_cat.png", TextureType::Texture_2D, texture_slot, TextureFormat::RGBA, PixelType::Unsigned_byte));
+    auto pyramide_shader = std::shared_ptr<Shader>(Shader::load_shader("resources/shaders/default.vert", "resources/shaders/default.frag"));
+    auto light_shader    = std::shared_ptr<Shader>(Shader::load_shader("resources/shaders/light.vert",   "resources/shaders/light.frag"  ));
 
-    float color [4]{ 1, 1, 1, 1 };
+    auto texture = std::shared_ptr<Texture>(Texture::load_texture("resources/textures/brick.png", TextureType::Texture_2D, texture_slot, TextureFormat::RGBA, PixelType::Unsigned_byte));
 
-    float scale[3]{ 1, 1, 1 };
-    float rotate[3]{ 0, 0, 0 };
-    float trans[3]{ 0, 0, 0 };
+    float back_color [4]{ 1, 60, 60, 1 };
 
-    auto camera = Camera();
+    float pyr_scale[3]{ 1, 1, 1 };
+    float pyr_rotate[3]{ 0, 0, 0 };
+    float pyr_trans[3]{ 0, 0, 0 };
+
+    float light_rotate[3]{ 0, 0, 0 };
+    float light_trans[3]{ 0, 0, 2 };
+
+    Camera camera = Camera();
     camera.set_field_of_view(90);
 
-    float lastTime = render->getTime();
-    float delta = 0.0f;
-    float speed = 1.f;
+    CameraControl cameraControl = CameraControl(&window, &camera);
 
     while (!window.is_shouldClose())
     {
-        float currentTime = render->getTime();
-        delta = currentTime - lastTime;
-        lastTime = currentTime;
-
         input->update();
 
         if (window.is_iconified()) continue;
         if (input->is_keyJustPressed(KeyCode::KEY_Q)) window.toggleCursor();
+        cameraControl.update();
 
+        render->set_clear_color(back_color[0], back_color[1], back_color[2], back_color[3]);
         render->clear();
-        render->set_clear_color(color[0], color[1], color[2], color[3]);
 
-        shader->bind();
+        /* LIGHT */
+        light_shader->bind();
 
-        auto vao = std::make_shared<VAO>();
-        auto vbo = std::make_shared<VBO>(verts, sizeof(verts), types);
-        auto ebo = std::make_shared<EBO>(indices, sizeof(indices));
+        auto light_vao = std::make_shared<VAO>();
+        auto light_vbo = std::make_shared<VBO>(light_vertices, sizeof(light_vertices), light_types);
+        auto light_ebo = std::make_shared<EBO>(light_indices, sizeof(light_indices));
 
-        vao->add_vertexBuffer(*vbo);
-        vao->set_indexBuffer(*ebo);
+        light_vao->add_vertexBuffer(*light_vbo);
+        light_vao->set_indexBuffer(*light_ebo);
 
-        vao->bind();
+        light_vao->bind();
 
-        shader->set_int("tex_slot", texture_slot);
+        glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        glm::mat4 light_model = glm::mat4(1.0f); {
+            light_model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+            light_model = glm::translate(light_model, glm::vec3(light_trans[0], light_trans[1], light_trans[2]));
 
-        glm::mat4 Model = glm::mat4(1.0f); {
+            light_model = glm::rotate(light_model, glm::radians(light_rotate[0]), glm::vec3(1, 0, 0));
+            light_model = glm::rotate(light_model, glm::radians(light_rotate[1]), glm::vec3(0, 1, 0));
+            light_model = glm::rotate(light_model, glm::radians(light_rotate[2]), glm::vec3(0, 0, 1));
+        }
+        light_shader->set_matrix4("model", light_model);
+        light_shader->set_matrix4("camMatrix", cameraControl.get_matricies());
+        light_shader->set_vec4("lightColor", lightColor);
+        render->draw(*light_vao, Primitivs::TRIANGLES);
 
-            Model = glm::scale(glm::mat4(1.0f), glm::vec3(scale[0], scale[1], scale[2]));
-            Model = glm::translate(Model, glm::vec3(trans[0], trans[1], trans[2]));
+        /* PYRAMIDE */
+        pyramide_shader->bind();
 
-            Model = glm::rotate(Model, glm::radians(rotate[0]), glm::vec3(1, 0, 0));
-            Model = glm::rotate(Model, glm::radians(rotate[1]), glm::vec3(0, 1, 0));
-            Model = glm::rotate(Model, glm::radians(rotate[2]), glm::vec3(0, 0, 1));
+        auto pyramide_vao = std::make_shared<VAO>();
+        auto pyramide_vbo = std::make_shared<VBO>(pyramide_vertices, sizeof(pyramide_vertices), pyramide_types);
+        auto pyramide_ebo = std::make_shared<EBO>(pyramide_indices, sizeof(pyramide_indices));
+
+        pyramide_vao->add_vertexBuffer(*pyramide_vbo);
+        pyramide_vao->set_indexBuffer(*pyramide_ebo);
+
+        pyramide_vao->bind();
+        pyramide_shader->set_int("tex_slot", texture_slot);
+
+        glm::mat4 pyramide_model = glm::mat4(1.0f); {
+
+            pyramide_model = glm::scale(glm::mat4(1.0f), glm::vec3(pyr_scale[0], pyr_scale[1], pyr_scale[2]));
+            pyramide_model = glm::translate(pyramide_model, glm::vec3(pyr_trans[0], pyr_trans[1], pyr_trans[2]));
+
+            pyramide_model = glm::rotate(pyramide_model, glm::radians(pyr_rotate[0]), glm::vec3(1, 0, 0));
+            pyramide_model = glm::rotate(pyramide_model, glm::radians(pyr_rotate[1]), glm::vec3(0, 1, 0));
+            pyramide_model = glm::rotate(pyramide_model, glm::radians(pyr_rotate[2]), glm::vec3(0, 0, 1));
         }
 
-        if (window.is_cursorLocked()) camera.rotate(input->get_mousePosDeltaY() / window.get_height() * 2, input->get_mousePosDeltaX() / window.get_height() * 2, 0.f);
+        pyramide_shader->set_matrix4("model", pyramide_model);
+        pyramide_shader->set_matrix4("camMatrix", cameraControl.get_matricies());
 
-        if (input->is_keyPressed(KeyCode::KEY_W)) camera.move_front(delta * speed);
-        if (input->is_keyPressed(KeyCode::KEY_A)) camera.move_right(delta * -speed);
-        if (input->is_keyPressed(KeyCode::KEY_S)) camera.move_front(delta * -speed);
-        if (input->is_keyPressed(KeyCode::KEY_D)) camera.move_right(delta * speed);
+        pyramide_shader->set_vec4("lightColor", lightColor);
+        pyramide_shader->set_vec3("lightPos", glm::vec3(light_trans[0], light_trans[1], light_trans[2]));
+        pyramide_shader->set_vec3("camPos", camera.get_position());
 
-        if (input->is_keyPressed(KeyCode::KEY_LEFT_SHIFT)) camera.move_up(delta * -speed);
-        if (input->is_keyPressed(KeyCode::KEY_SPACE))      camera.move_up(delta * speed);
+        render->draw(*pyramide_vao, Primitivs::TRIANGLES);
 
-        shader->set_matrix4("MVP", camera.get_projection_matrix() * camera.get_view_matrix() * Model);
-        render->draw(*vao);
-         
-        //UI
+        if (!window.is_cursorLocked())
         {
             ui->updateBegin();
             glm::vec2 win_pos = window.get_pos();
@@ -140,14 +211,29 @@ int main()
             ImGui::GetBackgroundDrawList()->AddText({ win_pos.x, win_pos.y }, ImGui::GetColorU32({ 0, 0, 0, 255 }), std::to_string(input->get_currentFrame()).c_str());
 
             ImGui::SetNextWindowContentSize({ 500, 200 });
+            ImGui::SetNextWindowPos({ win_pos.x, win_pos.y });
             ImGui::Begin("world settings");
             {
-                ImGui::SliderFloat3("scale", scale, -2.5, 2.5);
-                ImGui::SliderFloat3("rotate", rotate, 0, 360);
-                ImGui::SliderFloat3("trans", trans, -2.5, 2.5);
-                ImGui::ColorEdit4("background", color);
-            }
-            ImGui::End(); 
+                ImGui::ColorEdit4("background", back_color);
+            } ImGui::End();
+
+            ImGui::SetNextWindowContentSize({ 500, 200 });
+            ImGui::SetNextWindowPos({ win_pos.x, win_pos.y + 300 });
+            ImGui::Begin("pyramide settings");
+            {
+                ImGui::SliderFloat3("scale", pyr_scale, -2.5, 2.5);
+                ImGui::SliderFloat3("rotate", pyr_rotate, 0, 360);
+                ImGui::SliderFloat3("trans", pyr_trans, -2.5, 2.5);
+            } ImGui::End();
+
+            ImGui::SetNextWindowContentSize({ 500, 200 });
+            ImGui::SetNextWindowPos({ win_pos.x, win_pos.y + 600 });
+            ImGui::Begin("light settings");
+            {
+                ImGui::SliderFloat3("rotate", light_rotate, 0, 360);
+                ImGui::SliderFloat3("trans", light_trans, -2.5, 2.5);
+            } ImGui::End();
+
             ui->updateEnd();
         }
 

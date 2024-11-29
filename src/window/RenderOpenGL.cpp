@@ -8,6 +8,16 @@
 
 unsigned short RenderOpenGL::m_renderCount = 0;
 
+static constexpr auto primitivs_to_gl(Primitivs primitiv)
+{
+    switch (primitiv)
+    {
+    case Primitivs::TRIANGLES: return GL_TRIANGLES;
+    case Primitivs::LINES:     return GL_LINES;
+    default: return -1;
+    }
+}
+
 const char* gl_source_to_string(const GLenum source)
 {
     switch (source)
@@ -119,11 +129,11 @@ int RenderOpenGL::initialize()
     return RenderOpenGL::Returns::NO_ERRORS;
 }
 
-void RenderOpenGL::draw(const VAO& vao)
+void RenderOpenGL::draw(const VAO& vao, Primitivs primitiv)
 {
     this->m_pWindow->make_contextActive();
     vao.bind();
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vao.get_indicesCount()), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(primitivs_to_gl(primitiv), static_cast<GLsizei>(vao.get_indicesCount()), GL_UNSIGNED_INT, nullptr);
 }
 
 void RenderOpenGL::set_clear_color(const float r, const float g, const float b, const float a)
@@ -171,7 +181,7 @@ const char* RenderOpenGL::get_version_str()
     return reinterpret_cast<const char*>(glGetString(GL_VERSION));
 }
 
-double RenderOpenGL::getTime() { return glfwGetTime(); }
+double RenderOpenGL::get_time() { return glfwGetTime(); }
 
 void RenderOpenGL::finalize()      {                   }
      RenderOpenGL::~RenderOpenGL() { this->finalize(); }

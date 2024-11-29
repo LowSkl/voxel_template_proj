@@ -45,7 +45,10 @@
     <ClCompile Include="window\RenderOpenGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\Camera.cpp">
+    <ClCompile Include="modules\camera\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\camera\CameraControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,16 +92,24 @@
     <ClInclude Include="window\RenderOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\Camera.h">
+    <ClInclude Include="modules\camera\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\camera\CameraControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\default.vert" />
     <None Include="resources\shaders\default.frag" />
+    <None Include="resources\shaders\light.frag" />
+    <None Include="resources\shaders\light.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\pop_cat.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\brick.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
