@@ -8,7 +8,8 @@
 #include <sstream>
 #include <string>
 
-Shader Shader::load_shader(const char* vertexFile, const char* fragmentFile) {
+Shader Shader::load_shader(const char* vertexFile, const char* fragmentFile)
+{
     std::string vertexCode;
     std::string fragmentCode;
 

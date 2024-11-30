@@ -21,13 +21,6 @@ enum class ShaderType
     Fragment,
 };
 
-enum class TextureTypeGL
-{
-    Texture_1D,
-    Texture_2D,
-    Texture_3D,
-};
-
 enum class TextureType
 {
     DIFFUSE,
@@ -154,19 +147,6 @@ constexpr GLenum usage_to_GLenum(const Usage usage)
     return GL_STREAM_DRAW;
 }
 
-constexpr GLenum texture_GL_type_to_component_type(const TextureTypeGL type)
-{
-    switch (type)
-    {
-    case TextureTypeGL::Texture_1D: return GL_TEXTURE_1D;
-    case TextureTypeGL::Texture_2D: return GL_TEXTURE_2D;
-    case TextureTypeGL::Texture_3D: return GL_TEXTURE_3D;
-    }
-
-    LERROR("Unknown texture type GL");
-    return GL_TEXTURE_2D;
-}
-
 constexpr std::string texture_type_to_string(const TextureType type)
 {
     switch (type)
@@ -203,18 +183,6 @@ constexpr GLenum format_to_component_type(const TextureFormat format)
 
     LERROR("Unknown format");
     return GL_RGBA;
-}
-
-constexpr GLenum texture_type_to_color_set(const TextureType type)
-{
-    switch (type)
-    {
-    case TextureType::DIFFUSE:  return format_to_component_type(TextureFormat::RGBA);
-    case TextureType::SPECULAR: return format_to_component_type(TextureFormat::RED);
-    }
-
-    LERROR("Unknown texture type");
-    return format_to_component_type(TextureFormat::RGBA);
 }
 
 constexpr GLenum pixel_type_to_component_type(const PixelType type)

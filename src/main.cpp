@@ -70,8 +70,8 @@ int main()
 
     Texture textures[]
     {
-        Texture::load_texture("resources/textures/planks.png",     TextureTypeGL::Texture_2D, TextureType::DIFFUSE,  0, TextureFormat::RGBA, PixelType::Unsigned_byte),
-        Texture::load_texture("resources/textures/planksSpec.png", TextureTypeGL::Texture_2D, TextureType::SPECULAR, 1, TextureFormat::RED,  PixelType::Unsigned_byte)   
+        Texture::load_texture("resources/textures/planks.png",     TextureType::DIFFUSE,  0),
+        Texture::load_texture("resources/textures/planksSpec.png", TextureType::SPECULAR, 1)   
     };
 
     std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
@@ -159,11 +159,13 @@ int main()
 
             ImGui::GetBackgroundDrawList()->AddText({ win_pos.x, win_pos.y }, ImGui::GetColorU32({ 0, 0, 0, 255 }), std::to_string(input->get_currentFrame()).c_str());
 
+            ImGui::SetNextWindowContentSize({ 200, 200 });
             ImGui::Begin("world settings");
             {
                 ImGui::ColorEdit4("background", back_color);
             } ImGui::End();
 
+            ImGui::SetNextWindowContentSize({ 200, 200 });
             ImGui::Begin("floor settings");
             {
                 float* rot[]{ &floorRotate[0], &floorRotate[1], &floorRotate[2] };
@@ -173,6 +175,7 @@ int main()
                 ImGui::SliderFloat3("trans", trans[0], -2.5, 2.5);
             } ImGui::End();
 
+            ImGui::SetNextWindowContentSize({ 200, 200 });
             ImGui::Begin("light settings");
             {
                 float* trans[]{ &lightPos[0], &lightPos[1], &lightPos[2] };
