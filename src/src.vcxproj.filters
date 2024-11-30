@@ -51,6 +51,9 @@
     <ClCompile Include="modules\camera\CameraControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="objects\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\Log.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="modules\camera\CameraControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="objects\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\default.vert" />
@@ -110,6 +116,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\textures\brick.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\planks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\planksSpec.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-Shader* Shader::load_shader(const char* vertexFile, const char* fragmentFile) {
+Shader Shader::load_shader(const char* vertexFile, const char* fragmentFile) {
     std::string vertexCode;
     std::string fragmentCode;
 
@@ -21,10 +21,10 @@ Shader* Shader::load_shader(const char* vertexFile, const char* fragmentFile) {
     }
     catch (std::ifstream::failure& e) {
         LCRITICAL("Shader file read error:\n{}", e.what());
-        return nullptr;
+        exit(EXIT_FAILURE);
     }
 
-    return new Shader(vertexCode.c_str(), fragmentCode.c_str());
+    return Shader(vertexCode.c_str(), fragmentCode.c_str());
 }
 
 bool Shader::create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID)

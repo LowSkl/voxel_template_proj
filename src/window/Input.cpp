@@ -131,7 +131,7 @@ int Input::initialize()
             pMyInput->set_mousePosDelta(deltaX, deltaY);
             pMyInput->set_mousePos(x, y);
 
-            LINFO("[Input {}]\tmouse moved {}x{}, delta: {}x{}", pMyInput->get_count(), x, y, deltaX, deltaY);
+            //LINFO("[Input {}]\tmouse moved {}x{}, delta: {}x{}", pMyInput->get_count(), x, y, deltaX, deltaY);
         }
     );
 

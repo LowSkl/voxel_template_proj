@@ -13,7 +13,7 @@ class Shader
 	void finalize();
 
 public:
-    static Shader* load_shader(const char* vertexFile, const char* fragmentFile);
+    static Shader load_shader(const char* vertexFile, const char* fragmentFile);
     static bool create_shader(const char* code, const ShaderType shaderType, unsigned int& shaderUUID);
 
     Shader(const char* vertexCode, const char* fragmentCode);

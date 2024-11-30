@@ -21,17 +21,27 @@ enum class ShaderType
     Fragment,
 };
 
-enum class TextureType
+enum class TextureTypeGL
 {
     Texture_1D,
     Texture_2D,
     Texture_3D,
 };
 
+enum class TextureType
+{
+    DIFFUSE,
+    SPECULAR
+};
+
 enum class TextureFormat
 {
     RGB,
     RGBA,
+    RED,
+    GREEN,
+    BLUE,
+    ALPHA,
 };
 
 enum class PixelType
@@ -144,17 +154,29 @@ constexpr GLenum usage_to_GLenum(const Usage usage)
     return GL_STREAM_DRAW;
 }
 
-constexpr GLenum texture_type_to_component_type(const TextureType type)
+constexpr GLenum texture_GL_type_to_component_type(const TextureTypeGL type)
 {
     switch (type)
     {
-    case TextureType::Texture_1D: return GL_TEXTURE_1D;
-    case TextureType::Texture_2D: return GL_TEXTURE_2D;
-    case TextureType::Texture_3D: return GL_TEXTURE_3D;
+    case TextureTypeGL::Texture_1D: return GL_TEXTURE_1D;
+    case TextureTypeGL::Texture_2D: return GL_TEXTURE_2D;
+    case TextureTypeGL::Texture_3D: return GL_TEXTURE_3D;
+    }
+
+    LERROR("Unknown texture type GL");
+    return GL_TEXTURE_2D;
+}
+
+constexpr std::string texture_type_to_string(const TextureType type)
+{
+    switch (type)
+    {
+    case TextureType::DIFFUSE:  return "diffuse";
+    case TextureType::SPECULAR: return "specular";
     }
 
     LERROR("Unknown texture type");
-    return GL_TEXTURE_2D;
+    return "diffuse";
 }
 
 constexpr GLenum slot_to_component_type(const unsigned int slot)
@@ -171,12 +193,28 @@ constexpr GLenum format_to_component_type(const TextureFormat format)
 {
     switch (format)
     {
-    case TextureFormat::RGB:  return GL_RGB;
-    case TextureFormat::RGBA: return GL_RGBA;
+    case TextureFormat::RGB:   return GL_RGB;
+    case TextureFormat::RGBA:  return GL_RGBA;
+    case TextureFormat::RED:   return GL_RED;
+    case TextureFormat::GREEN: return GL_GREEN;
+    case TextureFormat::BLUE:  return GL_BLUE;
+    case TextureFormat::ALPHA: return GL_ALPHA;
     }
 
     LERROR("Unknown format");
     return GL_RGBA;
+}
+
+constexpr GLenum texture_type_to_color_set(const TextureType type)
+{
+    switch (type)
+    {
+    case TextureType::DIFFUSE:  return format_to_component_type(TextureFormat::RGBA);
+    case TextureType::SPECULAR: return format_to_component_type(TextureFormat::RED);
+    }
+
+    LERROR("Unknown texture type");
+    return format_to_component_type(TextureFormat::RGBA);
 }
 
 constexpr GLenum pixel_type_to_component_type(const PixelType type)

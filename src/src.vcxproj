@@ -170,6 +170,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="objects\Mesh.cpp" />
     <ClCompile Include="modules\camera\CameraControl.cpp" />
     <ClCompile Include="modules\camera\Camera.cpp" />
     <ClCompile Include="graphics\buffers\EBO.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="objects\Mesh.h" />
     <ClInclude Include="modules\camera\CameraControl.h" />
     <ClInclude Include="modules\camera\Camera.h" />
     <ClInclude Include="graphics\SneakyThings.h" />
@@ -208,6 +210,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\brick.png" />
+    <Image Include="resources\textures\planks.png" />
+    <Image Include="resources\textures\planksSpec.png" />
     <Image Include="resources\textures\pop_cat.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
